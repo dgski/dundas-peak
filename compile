@@ -1,1 +1,1 @@
-g++-8 -std=c++17 Main.cpp html-element/HTMLElement.cpp -o dundas-peak -g -lstdc++fs
+g++-8 -std=c++17 Main.cpp Site.cpp Utils.cpp html-element/HTMLElement.cpp markdown-to-html/MarkdownToHTML.cpp -o dundas-peak -g -lstdc++fs

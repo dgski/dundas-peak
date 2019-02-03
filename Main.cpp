@@ -6,89 +6,14 @@
 #include <regex>
 
 #include "html-element/HTMLElement.h"
+#include "markdown-to-html/MarkdownToHTML.h"
+
+#include "Site.h"
 
 using namespace std;
 namespace fs = filesystem;
 
-struct Link
-{
-    string text;
-    string url;
-};
 
-class SiteInfo
-{
-    string name;
-    string tagline;
-    vector<Link> links;
-    string mainColor;
-    string secondaryColor;
-
-public:
-    shared_ptr<HTMLElement> header;
-
-    SiteInfo()
-    {
-        header = make_HTMLElement("div");
-    }
-
-    void processLine(string line)
-    {
-        smatch matches;
-
-        if(!regex_match(line, matches, regex("(.+):(.+)")))
-            return;
-
-        for(auto m : matches)
-        {
-            if(matches[1].str() == "name")
-            {
-                name = matches[2].str();
-            }
-            else if(matches[1].str() == "tagline")
-            {
-                tagline = matches[2].str();
-            }
-            else if(matches[1].str() == "main_color")
-            {
-                mainColor = matches[2].str();
-            }
-            else if(matches[1].str() == "secondary_color")
-            {
-                secondaryColor = matches[2].str();
-            }
-            else if(matches[1].str() == "links")
-            {
-                // TODO: process links
-            }
-        }
-    }
-
-    void generateHeader()
-    {
-        auto h1 = make_HTMLElement("h1");
-        h1->appendChild(make_TextElement(name.c_str()));
-
-        auto em = make_HTMLElement("em");
-        em->appendChild(make_TextElement(tagline.c_str()));
-
-        auto div_header_links = make_HTMLElement("div");
-        div_header_links->setAttribute("class","header-links");
-        for(const auto& link : links)
-        {
-            auto a = make_HTMLElement("a");
-            a->setAttribute("href", link.url.c_str());
-            a->setAttribute("class", "header-link");
-            a->appendChild(make_TextElement(link.text.c_str()));
-
-            div_header_links->appendChild(a);
-        }
-
-        header->appendChild(h1);
-        header->appendChild(em);
-        header->appendChild(div_header_links);
-    }
-};
 
 int main(int argc, char** argv)
 {
@@ -98,43 +23,116 @@ int main(int argc, char** argv)
         return -1;
     }
 
+
+    Site site;
+
     // 0. get directory
+    site.setParentPath(argv[1]);
+    site.copyMainDirectory();
 
-    string parent_directory = argv[1];
     // 1. read heading.md
-
-    SiteInfo siteInfo;
-
-    ifstream input("sample/source/header.md");
-
-    if(!input.is_open())
-    {
-        cout << "Error" << endl;
-        return -2;
-    }
+    site.readHeader("sample/public/header.md");
     
-    string line;
-    while(getline(input,line))
+    // 2. read content/
+    vector<string> posts;
+    //-----------
     {
-        siteInfo.processLine(line);
+        ifstream fff("sample/public/content/posts/template.html");
+        stringstream post_html_template;
+        post_html_template << fff.rdbuf();
+        filesystem::remove("sample/public/content/posts/template.html");
+
+
+        for(auto& page_name : fs::directory_iterator("sample/public/content/posts"))
+        {
+            posts.push_back(page_name.path());
+
+            ifstream page(page_name.path());
+            
+            if(!page.is_open())
+                throw "Error!";
+
+            MarkdownToHTML parser;
+
+            string line;
+            while(getline(page, line))
+                parser.processLine(line);
+
+            filesystem::remove(page_name);
+
+
+            stringstream parse_results;
+            parse_results << parser;
+
+            string output = regex_replace(post_html_template.str(), regex("\\{\\{content\\}\\}"), parse_results.str());
+
+
+            string old_file = page_name.path().c_str();
+            string new_file;
+
+            for(char c : old_file)   
+            {
+                if(c == '.')
+                    break;
+                new_file.push_back(c);
+            }
+            new_file += ".html";
+
+            ofstream html_out(new_file);
+
+            if(!html_out.is_open())
+                throw "Could not open output file!";
+
+            html_out << output;
+        }
     }
 
-    siteInfo.generateHeader();
 
 
-    stringstream header;
-    header << *siteInfo.header;
+    //-----------
 
-    // 2. read content/
+
+
+
     // 3. read template and insert data
-
-    ifstream home_template("sample/source/template.html");
+    
+    ifstream home_template("sample/public/template.html");
     stringstream s;
     s << home_template.rdbuf();
 
+    filesystem::remove("sample/public/template.html");
+
+
+    site.generateHeader();
+    stringstream header;
+    header << *site.header;
     string output = regex_replace(s.str(), regex("\\{\\{header\\}\\}"), header.str());
 
-    cout << output;
+    auto div = make_HTMLElement("div");
+    div->setAttribute("class","posts");
+
+    auto h2 = make_HTMLElement("h2");
+    h2->appendChild(make_TextElement("Posts"));
+    div->appendChild(h2);
+    
+    for(auto p : posts)
+    {
+        auto a = make_HTMLElement("a");
+        a->setAttribute("href","#")
+        ->setAttribute("style","display: block");
+        a->appendChild(make_TextElement(p.c_str()));
+        div->appendChild(a);
+    }
+    
+    stringstream content;
+    content << *div;
+
+    output = regex_replace(output, regex("\\{\\{content\\}\\}"), content.str());
+
+
+    ofstream home_output("sample/public/index.html");
+    home_output << output;
+    
     
     return 0;
 }
