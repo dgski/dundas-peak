@@ -83,3 +83,97 @@ void Site::readHeader(const char* path)
     while(getline(input,line))
         processHeaderLine(line);
 }
+
+void Site::readPosts(const char* path)
+{
+
+    string template_path(path);
+    template_path += "/template.html";
+
+    // read and delete template
+    ifstream fff(template_path);
+    stringstream post_html_template;
+    post_html_template << fff.rdbuf();
+    filesystem::remove(template_path);
+    postTemplate = post_html_template.str();
+
+    // read each post
+    for(auto& page_name : filesystem::directory_iterator(path))
+    {
+        string fileName = page_name.path().c_str();
+
+        Post& currentPost = posts.emplace_back();
+
+        // Metadata
+        currentPost.title = fileName;
+        currentPost.filename = page_name.path().filename().c_str();
+        currentPost.filename = currentPost.filename.substr(0, currentPost.filename.length() - 3);
+
+        // Parse markdown file
+        currentPost.readContents(fileName.c_str());
+
+        // Delete markdown file
+        filesystem::remove(page_name);
+    }
+}
+
+void Site::generate()
+{
+    ifstream home_template("sample/public/template.html");
+    stringstream s;
+    s << home_template.rdbuf();
+
+    filesystem::remove("sample/public/template.html");
+
+
+    generateHeader();
+    stringstream h;
+    h << *header;
+    string output = regex_replace(s.str(), regex("\\{\\{header\\}\\}"), h.str());
+
+    auto div = make_HTMLElement("div");
+    div->setAttribute("class","posts");
+
+    auto h2 = make_HTMLElement("h2");
+    h2->appendChild(make_TextElement("Posts"));
+    div->appendChild(h2);
+    
+    for(auto p : posts)
+    {
+        auto a = make_HTMLElement("a");
+        a->setAttribute("href","#")
+        ->setAttribute("style","display: block");
+        a->appendChild(make_TextElement(p.filename.c_str()));
+        div->appendChild(a);
+
+        stringstream parseResults;
+        parseResults << p.content;
+
+        // Templating
+        string output = regex_replace(postTemplate, regex("\\{\\{content\\}\\}"), parseResults.str());
+
+
+        filesystem::create_directory(parent_path + "/" + p.filename);
+
+        string outputPath = parent_path + "/" + p.filename + "/index.html";
+
+
+
+        ofstream html_out(outputPath);
+
+        if(!html_out.is_open())
+            throw "Could not open output file!";
+
+        html_out << output;
+
+    }
+    
+    stringstream content;
+    content << *div;
+
+    output = regex_replace(output, regex("\\{\\{content\\}\\}"), content.str());
+
+
+    ofstream home_output("sample/public/index.html");
+    home_output << output;
+}
