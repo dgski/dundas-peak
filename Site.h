@@ -35,11 +35,18 @@ struct Post
 
 class Site
 {
-    string parent_path;
+    filesystem::path parentPath;
+    filesystem::path sourcePath;
+    filesystem::path publicPath;
+    filesystem::path contentPath;
+    filesystem::path postsPath;
+    filesystem::path projectsPath;
+
     string name;
     string tagline;
     string mainColor;
     string secondaryColor;
+    string topAddress;
 
     string homeTemplate;
     vector<HeadingLink> links;
@@ -62,10 +69,13 @@ public:
 
     void processHeaderLine(const string line);
     void processHeaderLinks(const string& linksString);
-    void generateHeader();
 
-    void readHeader(const char* path);
-    void readPosts(const char* path);
+    void readHeader();
+    void readPosts();
+
+    void generateHeader();
+    string generateHomePage();
+    void generatePost(const Post& p);
 
     void generate();
 };

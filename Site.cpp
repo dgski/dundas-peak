@@ -8,13 +8,18 @@
 
 void Site::setParentPath(const char* path)
 {
-    parent_path = path;
+    parentPath = path;
+    sourcePath = parentPath / "source";
+    publicPath = parentPath / "public";
+    contentPath = sourcePath / "content";
+    postsPath = contentPath / "posts";
+    projectsPath = contentPath / "projects";
 }
 
 void Site::copyMainDirectory()
 {
-    string from =  parent_path + "/source";
-    string to = parent_path + "/public";
+    auto from =  parentPath / "source";
+    auto to = parentPath / "public";
 
     filesystem::remove_all(to);
     filesystem::copy(from, to, std::filesystem::copy_options::recursive);
@@ -25,6 +30,7 @@ void Site::processHeaderLine(const string line)
     const auto [key, value] = getLineKeyValuePair(line);
 
     if(key == "name")              name = value;
+    if(key == "top_address")       topAddress = value;
     if(key == "tagline")           tagline = value;
     if(key == "main_color")        mainColor = value;
     if(key == "secondary_color")   secondaryColor = value;
@@ -45,7 +51,9 @@ void Site::processHeaderLinks(const string& linksString)
 void Site::generateHeader()
 {
     auto h1 = make_HTMLElement("h1");
-    h1->appendChild(make_TextElement(name.c_str()));
+    h1
+    ->setAttribute("class","homepage-header")
+    ->appendChild(make_TextElement(name.c_str()));
 
     auto em = make_HTMLElement("em");
     em->appendChild(make_TextElement(tagline.c_str()));
@@ -69,9 +77,9 @@ void Site::generateHeader()
     header->appendChild(div_header_links);
 }
 
-void Site::readHeader(const char* path)
+void Site::readHeader()
 {
-    ifstream input(path);
+    ifstream input(sourcePath / "header.md");
 
     if(!input.is_open())
     {
@@ -84,47 +92,42 @@ void Site::readHeader(const char* path)
         processHeaderLine(line);
 }
 
-void Site::readPosts(const char* path)
+void Site::readPosts()
 {
+    auto template_path = postsPath / "template.html";
 
-    string template_path(path);
-    template_path += "/template.html";
-
-    // read and delete template
+    // read template
     ifstream fff(template_path);
     stringstream post_html_template;
     post_html_template << fff.rdbuf();
-    filesystem::remove(template_path);
     postTemplate = post_html_template.str();
 
     // read each post
-    for(auto& page_name : filesystem::directory_iterator(path))
+    for(auto& postFileName : filesystem::directory_iterator(postsPath))
     {
-        string fileName = page_name.path().c_str();
+        if(splitString(postFileName.path(), '.').at(1) != "md")
+            continue;
 
         Post& currentPost = posts.emplace_back();
 
+        string fileName = postFileName.path().c_str();
+
         // Metadata
         currentPost.title = fileName;
-        currentPost.filename = page_name.path().filename().c_str();
+        currentPost.filename = postFileName.path().filename().c_str();
         currentPost.filename = currentPost.filename.substr(0, currentPost.filename.length() - 3);
 
         // Parse markdown file
         currentPost.readContents(fileName.c_str());
-
-        // Delete markdown file
-        filesystem::remove(page_name);
     }
 }
 
-void Site::generate()
+string Site::generateHomePage()
 {
-    ifstream home_template("sample/public/template.html");
+    ifstream home_template(sourcePath / "template.html");
+
     stringstream s;
     s << home_template.rdbuf();
-
-    filesystem::remove("sample/public/template.html");
-
 
     generateHeader();
     stringstream h;
@@ -137,43 +140,61 @@ void Site::generate()
     auto h2 = make_HTMLElement("h2");
     h2->appendChild(make_TextElement("Posts"));
     div->appendChild(h2);
-    
+
     for(auto p : posts)
     {
         auto a = make_HTMLElement("a");
-        a->setAttribute("href","#")
+        a
+        ->setAttribute("href", (topAddress + "/" + p.filename).c_str())
         ->setAttribute("style","display: block");
         a->appendChild(make_TextElement(p.filename.c_str()));
         div->appendChild(a);
-
-        stringstream parseResults;
-        parseResults << p.content;
-
-        // Templating
-        string output = regex_replace(postTemplate, regex("\\{\\{content\\}\\}"), parseResults.str());
-
-
-        filesystem::create_directory(parent_path + "/" + p.filename);
-
-        string outputPath = parent_path + "/" + p.filename + "/index.html";
-
-
-
-        ofstream html_out(outputPath);
-
-        if(!html_out.is_open())
-            throw "Could not open output file!";
-
-        html_out << output;
-
     }
-    
+
     stringstream content;
     content << *div;
 
     output = regex_replace(output, regex("\\{\\{content\\}\\}"), content.str());
 
+    return output;
+}
 
-    ofstream home_output("sample/public/index.html");
-    home_output << output;
+void Site::generatePost(const Post& p)
+{
+    stringstream parseResults;
+    parseResults << p.content;
+
+    // Templating
+    string output = regex_replace(postTemplate, regex("\\{\\{content\\}\\}"), parseResults.str());
+
+    filesystem::create_directory(publicPath / p.filename);
+    ofstream html_out(publicPath / p.filename / "index.html");
+
+    if(!html_out.is_open())
+        throw "Could not open output file!";
+
+    html_out << output;
+}
+
+void Site::generate()
+{
+    filesystem::remove_all(publicPath);
+
+    filesystem::create_directory(publicPath);
+    filesystem::create_directory(contentPath);
+    filesystem::create_directory(postsPath);
+    filesystem::create_directory(projectsPath);
+
+    filesystem::copy_file(sourcePath / "style.css", publicPath / "style.css");
+
+    ofstream homePageFile(publicPath / "index.html");
+    if(!homePageFile.is_open())
+        throw "Could Not Open index.html to write!";
+
+    // Generate Home Page
+    homePageFile << generateHomePage();
+
+    // GeneratePosts
+    for(const auto p : posts)
+        generatePost(p);
 }

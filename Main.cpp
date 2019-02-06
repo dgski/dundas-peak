@@ -25,13 +25,13 @@ int main(int argc, char** argv)
 
     // 0. get directory
     site.setParentPath(argv[1]);
-    site.copyMainDirectory();
+    //site.copyMainDirectory();
 
     // 1. read heading.md
-    site.readHeader("sample/public/header.md");
+    site.readHeader();
     
     // 2. read posts
-    site.readPosts("sample/public/content/posts");
+    site.readPosts();
 
     // 3. read projects
     // TODO
