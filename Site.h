@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <filesystem>
 
 #include "html-element/HTMLElement.h"
 #include "markdown-to-html/MarkdownToHTML.h"
@@ -14,23 +15,18 @@ struct HeadingLink
 
 struct Post
 {
-    string title;
     string filename;
+
+    string title;
     string date;
-    string description;
     string tagline;
+    vector<string> tags;
     MarkdownToHTML content;
     
     Post() : content(false) {}
-    void readContents(const char* filename)
-    {
-        ifstream page(filename);        
-        if(!page.is_open()) throw "Error!";
-
-        string line;
-        while(getline(page, line))
-            content.processLine(line);
-    }
+    void processMetadataLine(const string& line);
+    void readContents(const char* filename);
+    void generate(const string& postTemplate, const filesystem::path& publicPath) const;
 };
 
 class Site
@@ -54,10 +50,7 @@ class Site
     string postTemplate;
     vector<Post> posts;
 
-
-
-
-    // Projects
+    string projectTemplate;
     vector<string> projects;
     
 public:
@@ -67,7 +60,7 @@ public:
     void setParentPath(const char* path);
     void copyMainDirectory();
 
-    void processHeaderLine(const string line);
+    void processHeaderLine(const string& line);
     void processHeaderLinks(const string& linksString);
 
     void readHeader();

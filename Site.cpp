@@ -6,6 +6,58 @@
 #include "Site.h"
 #include "Utils.h"
 
+void Post::processMetadataLine(const string& line)
+{
+    const auto [key, value] = getLineKeyValuePair(line);
+
+    if(key == "title")             title = value;
+    if(key == "tagline")           tagline = value;
+    if(key == "date")              date = value;
+    if(key == "tags")              tags = splitString(value, ',');
+}
+
+void Post::readContents(const char* filename)
+{
+    ifstream page(filename);        
+    if(!page.is_open()) throw "Error!";
+
+    string line;
+
+    // Metadata
+    if(!getline(page,line) || line != "---")
+        throw "Post is missing Metadata";
+
+    while(getline(page, line))
+    {
+        if(line == "---") break;
+        processMetadataLine(line);
+    }
+
+    // Content
+    while(getline(page, line))
+        content.processLine(line);
+}
+
+void Post::generate(const string& postTemplate, const filesystem::path& publicPath) const
+{
+    stringstream parseResults;
+    parseResults << content;
+
+    // Templating
+    string output = regex_replace(postTemplate, regex("\\{\\{title\\}\\}"), title);
+    output = regex_replace(output, regex("\\{\\{tagline\\}\\}"), tagline);
+    output = regex_replace(output, regex("\\{\\{date\\}\\}"), date);
+    output = regex_replace(output, regex("\\{\\{content\\}\\}"), parseResults.str());
+    
+    filesystem::create_directory(publicPath / filename);
+    ofstream html_out(publicPath / filename / "index.html");
+
+    if(!html_out.is_open())
+        throw "Could not open output file!";
+
+    html_out << output;
+}
+
 void Site::setParentPath(const char* path)
 {
     parentPath = path;
@@ -25,7 +77,7 @@ void Site::copyMainDirectory()
     filesystem::copy(from, to, std::filesystem::copy_options::recursive);
 }
 
-void Site::processHeaderLine(const string line)
+void Site::processHeaderLine(const string& line)
 {   
     const auto [key, value] = getLineKeyValuePair(line);
 
@@ -98,14 +150,14 @@ void Site::readPosts()
 
     // read template
     ifstream fff(template_path);
-    stringstream post_html_template;
-    post_html_template << fff.rdbuf();
-    postTemplate = post_html_template.str();
+    stringstream postHtmlTemplate;
+    postHtmlTemplate << fff.rdbuf();
+    postTemplate = postHtmlTemplate.str();
 
     // read each post
     for(auto& postFileName : filesystem::directory_iterator(postsPath))
     {
-        if(splitString(postFileName.path(), '.').at(1) != "md")
+        if(postFileName.path().extension() != ".md")
             continue;
 
         Post& currentPost = posts.emplace_back();
@@ -124,10 +176,10 @@ void Site::readPosts()
 
 string Site::generateHomePage()
 {
-    ifstream home_template(sourcePath / "template.html");
+    ifstream homeTemplate(sourcePath / "template.html");
 
     stringstream s;
-    s << home_template.rdbuf();
+    s << homeTemplate.rdbuf();
 
     generateHeader();
     stringstream h;
@@ -135,45 +187,27 @@ string Site::generateHomePage()
     string output = regex_replace(s.str(), regex("\\{\\{header\\}\\}"), h.str());
 
     auto div = make_HTMLElement("div");
-    div->setAttribute("class","posts");
-
-    auto h2 = make_HTMLElement("h2");
-    h2->appendChild(make_TextElement("Posts"));
-    div->appendChild(h2);
-
+    
     for(auto p : posts)
     {
         auto a = make_HTMLElement("a");
         a
         ->setAttribute("href", (topAddress + "/" + p.filename).c_str())
         ->setAttribute("style","display: block");
-        a->appendChild(make_TextElement(p.filename.c_str()));
+        a->appendChild(make_TextElement(p.title.c_str()));
         div->appendChild(a);
+
+        auto i = make_HTMLElement("i");
+        i->appendChild(make_TextElement(p.tagline.c_str()));
+        div->appendChild(i);
     }
 
-    stringstream content;
-    content << *div;
+    stringstream postsContent;
+    postsContent << *div;
 
-    output = regex_replace(output, regex("\\{\\{content\\}\\}"), content.str());
+    output = regex_replace(output, regex("\\{\\{posts\\}\\}"), postsContent.str());
 
     return output;
-}
-
-void Site::generatePost(const Post& p)
-{
-    stringstream parseResults;
-    parseResults << p.content;
-
-    // Templating
-    string output = regex_replace(postTemplate, regex("\\{\\{content\\}\\}"), parseResults.str());
-
-    filesystem::create_directory(publicPath / p.filename);
-    ofstream html_out(publicPath / p.filename / "index.html");
-
-    if(!html_out.is_open())
-        throw "Could not open output file!";
-
-    html_out << output;
 }
 
 void Site::generate()
@@ -196,5 +230,5 @@ void Site::generate()
 
     // GeneratePosts
     for(const auto p : posts)
-        generatePost(p);
+        p.generate(postTemplate, publicPath);
 }
