@@ -6,58 +6,6 @@
 #include "Site.h"
 #include "Utils.h"
 
-void Post::processMetadataLine(const string& line)
-{
-    const auto [key, value] = getLineKeyValuePair(line);
-
-    if(key == "title")             title = value;
-    if(key == "tagline")           tagline = value;
-    if(key == "date")              date = value;
-    if(key == "tags")              tags = splitString(value, ',');
-}
-
-void Post::readContents(const char* filename)
-{
-    ifstream page(filename);        
-    if(!page.is_open()) throw "Error!";
-
-    string line;
-
-    // Metadata
-    if(!getline(page,line) || line != "---")
-        throw "Post is missing Metadata";
-
-    while(getline(page, line))
-    {
-        if(line == "---") break;
-        processMetadataLine(line);
-    }
-
-    // Content
-    while(getline(page, line))
-        content.processLine(line);
-}
-
-void Post::generate(const string& postTemplate, const filesystem::path& publicPath) const
-{
-    stringstream parseResults;
-    parseResults << content;
-
-    // Templating
-    string output = regex_replace(postTemplate, regex("\\{\\{title\\}\\}"), title);
-    output = regex_replace(output, regex("\\{\\{tagline\\}\\}"), tagline);
-    output = regex_replace(output, regex("\\{\\{date\\}\\}"), date);
-    output = regex_replace(output, regex("\\{\\{content\\}\\}"), parseResults.str());
-    
-    filesystem::create_directory(publicPath / filename);
-    ofstream html_out(publicPath / filename / "index.html");
-
-    if(!html_out.is_open())
-        throw "Could not open output file!";
-
-    html_out << output;
-}
-
 void Site::setParentPath(const char* path)
 {
     parentPath = path;
@@ -144,15 +92,20 @@ void Site::readHeader()
         processHeaderLine(line);
 }
 
-void Site::readPosts()
+void Site::readAbout()
 {
-    auto template_path = postsPath / "template.html";
+    auto template_path = contentPath / "about.md";
 
     // read template
     ifstream fff(template_path);
-    stringstream postHtmlTemplate;
-    postHtmlTemplate << fff.rdbuf();
-    postTemplate = postHtmlTemplate.str();
+    stringstream aboutHtmlTemplate;
+    aboutHtmlTemplate << fff.rdbuf();
+    aboutTemplate = aboutHtmlTemplate.str();
+}
+
+void Site::readPosts()
+{
+    postTemplate = fileToString(postsPath / "page_template.html");
 
     // read each post
     for(auto& postFileName : filesystem::directory_iterator(postsPath))
@@ -174,38 +127,60 @@ void Site::readPosts()
     }
 }
 
-string Site::generateHomePage()
+void Site::readProjects()
 {
-    ifstream homeTemplate(sourcePath / "template.html");
+    // read template
+    projectTemplate = fileToString(projectsPath / "page_template.html");
 
-    stringstream s;
-    s << homeTemplate.rdbuf();
-
-    generateHeader();
-    stringstream h;
-    h << *header;
-    string output = regex_replace(s.str(), regex("\\{\\{header\\}\\}"), h.str());
-
-    auto div = make_HTMLElement("div");
-    
-    for(auto p : posts)
+    // read each post
+    for(auto& projectFileName : filesystem::directory_iterator(projectsPath))
     {
-        auto a = make_HTMLElement("a");
-        a
-        ->setAttribute("href", (topAddress + "/" + p.filename).c_str())
-        ->setAttribute("style","display: block");
-        a->appendChild(make_TextElement(p.title.c_str()));
-        div->appendChild(a);
+        if(projectFileName.path().extension() != ".md")
+            continue;
 
-        auto i = make_HTMLElement("i");
-        i->appendChild(make_TextElement(p.tagline.c_str()));
-        div->appendChild(i);
+        Project& currentProject = projects.emplace_back();
+
+        string fileName = projectFileName.path().c_str();
+
+        // Metadata
+        currentProject.title = fileName;
+        currentProject.filename = projectFileName.path().filename().c_str();
+        currentProject.filename = currentProject.filename.substr(0, currentProject.filename.length() - 3);
+
+        // Parse markdown file
+        currentProject.readContents(fileName.c_str());
+    }
+}
+
+string Site::generateHomePage()
+{   
+    homeTemplate = fileToString(sourcePath / "page_template.html");
+
+    string output;
+
+    //  Generate Header and add to output
+    {
+        generateHeader();
+        output = regex_replace(homeTemplate, regex("\\{\\{header\\}\\}"), header);
     }
 
-    stringstream postsContent;
-    postsContent << *div;
+    // Generate post previews and add to output
+    {
+        auto divPosts = make_HTMLElement("div");
+        for(auto p : posts)
+            divPosts->appendChild(p.make_preview(topAddress));
 
-    output = regex_replace(output, regex("\\{\\{posts\\}\\}"), postsContent.str());
+        output = regex_replace(output, regex("\\{\\{posts\\}\\}"), divPosts);
+    }
+
+    // Generate project previews and add to output
+    {
+        auto divProjects = make_HTMLElement("div");
+        for(auto p : projects)
+            divProjects->appendChild(p.make_preview(topAddress));
+
+        output = regex_replace(output, regex("\\{\\{projects\\}\\}"), divProjects);
+    }
 
     return output;
 }

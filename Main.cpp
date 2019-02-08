@@ -34,10 +34,10 @@ int main(int argc, char** argv)
     site.readPosts();
 
     // 3. read projects
-    // TODO
+    site.readProjects();
 
     // 4. read about
-    // TODO
+    //site.readAbout(); TODO
 
     // 5. read template and insert data
     site.generate();

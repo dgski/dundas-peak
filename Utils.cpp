@@ -1,4 +1,6 @@
 #include <string>
+#include <iostream>
+#include <fstream>
 
 #include "Utils.h"
 
@@ -47,4 +49,20 @@ pair<string,string> getLineKeyValuePair(const string& line)
     }
 
     return result;
+}
+
+string regex_replace(string templ, const regex& expression, shared_ptr<HTMLElement> elem)
+{
+    stringstream s;
+    s << *elem;
+    return regex_replace(templ, expression, s.str());
+}
+
+string fileToString(const filesystem::path& input)
+{
+    ifstream homeTemplate(input);
+    stringstream s;
+    s << homeTemplate.rdbuf();
+
+    return s.str();
 }

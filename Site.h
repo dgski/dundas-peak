@@ -4,6 +4,8 @@
 
 #include "html-element/HTMLElement.h"
 #include "markdown-to-html/MarkdownToHTML.h"
+#include "Post.h"
+#include "Project.h"
 
 using namespace std;
 
@@ -13,20 +15,9 @@ struct HeadingLink
     string url;
 };
 
-struct Post
+struct About
 {
-    string filename;
-
-    string title;
-    string date;
-    string tagline;
-    vector<string> tags;
     MarkdownToHTML content;
-    
-    Post() : content(false) {}
-    void processMetadataLine(const string& line);
-    void readContents(const char* filename);
-    void generate(const string& postTemplate, const filesystem::path& publicPath) const;
 };
 
 class Site
@@ -47,11 +38,14 @@ class Site
     string homeTemplate;
     vector<HeadingLink> links;
 
+    string aboutTemplate;
+    About about;
+
     string postTemplate;
     vector<Post> posts;
 
     string projectTemplate;
-    vector<string> projects;
+    vector<Project> projects;
     
 public:
     shared_ptr<HTMLElement> header;
@@ -64,7 +58,9 @@ public:
     void processHeaderLinks(const string& linksString);
 
     void readHeader();
+    void readAbout();
     void readPosts();
+    void readProjects();
 
     void generateHeader();
     string generateHomePage();
