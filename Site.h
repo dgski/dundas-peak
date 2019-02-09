@@ -42,17 +42,19 @@ class Site
     About about;
 
     string postTemplate;
+    string postPreviewTemplate;
     vector<Post> posts;
 
     string projectTemplate;
+    string projectPreviewTemplate;
     vector<Project> projects;
     
 public:
     shared_ptr<HTMLElement> header;
     Site() { header = make_HTMLElement("div"); }
 
-    void setParentPath(const char* path);
-    void copyMainDirectory();
+    void setPath(const char* path);
+    void createCssFile();
 
     void processHeaderLine(const string& line);
     void processHeaderLinks(const string& linksString);

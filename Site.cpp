@@ -6,7 +6,7 @@
 #include "Site.h"
 #include "Utils.h"
 
-void Site::setParentPath(const char* path)
+void Site::setPath(const char* path)
 {
     parentPath = path;
     sourcePath = parentPath / "source";
@@ -16,13 +16,17 @@ void Site::setParentPath(const char* path)
     projectsPath = contentPath / "projects";
 }
 
-void Site::copyMainDirectory()
+void Site::createCssFile()
 {
-    auto from =  parentPath / "source";
-    auto to = parentPath / "public";
+    if(!filesystem::exists(sourcePath / "style.css"))
+        return;
 
-    filesystem::remove_all(to);
-    filesystem::copy(from, to, std::filesystem::copy_options::recursive);
+    string cssInput = fileToString(sourcePath / "style.css");
+    cssInput = regex_replace(cssInput, regex("\\{\\{main_color\\}\\}"), mainColor);
+    cssInput = regex_replace(cssInput, regex("\\{\\{secondary_color\\}\\}"), secondaryColor);
+
+    ofstream cssOutput(publicPath / "style.css");
+    cssOutput << cssInput;
 }
 
 void Site::processHeaderLine(const string& line)
@@ -106,49 +110,32 @@ void Site::readAbout()
 void Site::readPosts()
 {
     postTemplate = fileToString(postsPath / "page_template.html");
+    postPreviewTemplate = fileToString(postsPath / "preview_template.html");
 
-    // read each post
     for(auto& postFileName : filesystem::directory_iterator(postsPath))
     {
         if(postFileName.path().extension() != ".md")
             continue;
 
         Post& currentPost = posts.emplace_back();
-
-        string fileName = postFileName.path().c_str();
-
-        // Metadata
-        currentPost.title = fileName;
-        currentPost.filename = postFileName.path().filename().c_str();
-        currentPost.filename = currentPost.filename.substr(0, currentPost.filename.length() - 3);
-
-        // Parse markdown file
-        currentPost.readContents(fileName.c_str());
+        currentPost.filename = postFileName.path().stem().c_str();
+        currentPost.readContents(postFileName.path());
     }
 }
 
 void Site::readProjects()
 {
-    // read template
     projectTemplate = fileToString(projectsPath / "page_template.html");
+    projectPreviewTemplate = fileToString(projectsPath / "preview_template.html");
 
-    // read each post
     for(auto& projectFileName : filesystem::directory_iterator(projectsPath))
     {
         if(projectFileName.path().extension() != ".md")
             continue;
 
         Project& currentProject = projects.emplace_back();
-
-        string fileName = projectFileName.path().c_str();
-
-        // Metadata
-        currentProject.title = fileName;
-        currentProject.filename = projectFileName.path().filename().c_str();
-        currentProject.filename = currentProject.filename.substr(0, currentProject.filename.length() - 3);
-
-        // Parse markdown file
-        currentProject.readContents(fileName.c_str());
+        currentProject.filename = projectFileName.path().stem().c_str();
+        currentProject.readContents(projectFileName.path());
     }
 }
 
@@ -166,20 +153,20 @@ string Site::generateHomePage()
 
     // Generate post previews and add to output
     {
-        auto divPosts = make_HTMLElement("div");
+        string postPreviews;
         for(auto p : posts)
-            divPosts->appendChild(p.make_preview(topAddress));
+            postPreviews.append(p.make_preview(postPreviewTemplate, topAddress));
 
-        output = regex_replace(output, regex("\\{\\{posts\\}\\}"), divPosts);
+        output = regex_replace(output, regex("\\{\\{posts\\}\\}"), postPreviews);
     }
 
     // Generate project previews and add to output
     {
-        auto divProjects = make_HTMLElement("div");
+        string projectPreviews;
         for(auto p : projects)
-            divProjects->appendChild(p.make_preview(topAddress));
+            projectPreviews.append(p.make_preview(projectPreviewTemplate, topAddress));
 
-        output = regex_replace(output, regex("\\{\\{projects\\}\\}"), divProjects);
+        output = regex_replace(output, regex("\\{\\{projects\\}\\}"), projectPreviews);
     }
 
     return output;
@@ -194,7 +181,7 @@ void Site::generate()
     filesystem::create_directory(postsPath);
     filesystem::create_directory(projectsPath);
 
-    filesystem::copy_file(sourcePath / "style.css", publicPath / "style.css");
+    createCssFile();
 
     ofstream homePageFile(publicPath / "index.html");
     if(!homePageFile.is_open())
@@ -203,7 +190,7 @@ void Site::generate()
     // Generate Home Page
     homePageFile << generateHomePage();
 
-    // GeneratePosts
+    // Generate Posts
     for(const auto p : posts)
         p.generate(postTemplate, publicPath);
 }

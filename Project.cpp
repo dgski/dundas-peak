@@ -14,9 +14,9 @@ void Project::processMetadataLine(const string& line)
     if(key == "technologies")      technologies = splitString(value, ',');
 }
 
-void Project::readContents(const char* filename)
+void Project::readContents(const filesystem::path& filePath)
 {
-    ifstream page(filename);        
+    ifstream page(filePath);        
     if(!page.is_open()) throw "Error!";
 
     string line;
@@ -75,4 +75,14 @@ shared_ptr<HTMLElement> Project::make_preview(const string& topAddress) const
     div->appendChild(i);
 
     return div;
+}
+
+string Project::make_preview(const string& projectPreviewTemplate, const string& topAddress) const
+{
+    string output = regex_replace(projectPreviewTemplate, regex("\\{\\{title\\}\\}"), title);
+    output = regex_replace(output, regex("\\{\\{tagline\\}\\}"), tagline);
+    output = regex_replace(output, regex("\\{\\{date\\}\\}"), date);
+    output = regex_replace(output, regex("\\{\\{link\\}\\}"), date);
+
+    return output;
 }

@@ -24,7 +24,7 @@ int main(int argc, char** argv)
     Site site;
 
     // 0. get directory
-    site.setParentPath(argv[1]);
+    site.setPath(argv[1]);
     //site.copyMainDirectory();
 
     // 1. read heading.md

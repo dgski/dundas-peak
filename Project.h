@@ -20,9 +20,10 @@ struct Project
 
     Project() : content(false) {}
     void processMetadataLine(const string& line);
-    void readContents(const char* filename);
+    void readContents(const filesystem::path& filePath);
     void generate(const string& projectTemplate, const filesystem::path& publicPath) const;
     shared_ptr<HTMLElement> make_preview(const string& topAddress) const;
+    string make_preview(const string& projectPreviewTemplate, const string& topAddress) const;
 };
 
 #pragma once

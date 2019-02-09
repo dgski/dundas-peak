@@ -13,9 +13,9 @@ void Post::processMetadataLine(const string& line)
     if(key == "tags")              tags = splitString(value, ',');
 }
 
-void Post::readContents(const char* filename)
+void Post::readContents(const filesystem::path& filePath)
 {
-    ifstream page(filename);        
+    ifstream page(filePath);        
     if(!page.is_open()) throw "Error!";
 
     string line;
@@ -72,4 +72,13 @@ shared_ptr<HTMLElement> Post::make_preview(const string& topAddress) const
     div->appendChild(i);
 
     return div;
+}
+
+string Post::make_preview(const string& postPreviewTemplate, const string& topAddress) const
+{
+    string output = regex_replace(postPreviewTemplate, regex("\\{\\{title\\}\\}"), title);
+    output = regex_replace(output, regex("\\{\\{tagline\\}\\}"), tagline);
+    output = regex_replace(output, regex("\\{\\{date\\}\\}"), date);
+
+    return output;
 }
