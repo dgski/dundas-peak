@@ -33,12 +33,12 @@ void Site::processHeaderLine(const string& line)
 {   
     const auto [key, value] = getLineKeyValuePair(line);
 
-    if(key == "name")              name = value;
-    if(key == "top_address")       topAddress = value;
-    if(key == "tagline")           tagline = value;
-    if(key == "main_color")        mainColor = value;
-    if(key == "secondary_color")   secondaryColor = value;
-    if(key == "links")             processHeaderLinks(value);
+    if(key == "name")                   name = value;
+    else if(key == "top_address")       topAddress = value;
+    else if(key == "tagline")           tagline = value;
+    else if(key == "main_color")        mainColor = value;
+    else if(key == "secondary_color")   secondaryColor = value;
+    else if(key == "links")             processHeaderLinks(value);
 }
 
 void Site::processHeaderLinks(const string& linksString)

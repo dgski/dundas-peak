@@ -1,4 +1,6 @@
 #include <fstream>
+#include <iomanip>
+#include <sstream>
 
 #include "Post.h"
 #include "Utils.h"
@@ -8,9 +10,24 @@ void Post::processMetadataLine(const string& line)
     const auto [key, value] = getLineKeyValuePair(line);
 
     if(key == "title")             title = value;
-    if(key == "tagline")           tagline = value;
-    if(key == "date")              date = value;
-    if(key == "tags")              tags = splitString(value, ',');
+    else if(key == "tagline")      tagline = value;
+    else if(key == "date")
+    {
+        date = value;
+        cout << "DATE:" << date << endl;
+        tm t = {};
+
+        stringstream ss {date};
+        
+        ss >> get_time(&t, "%Y-%b-%d %H:%M:%S");
+
+        cout << t.tm_min << endl;
+        cout << t.tm_hour << endl;
+        cout << t.tm_year << endl;
+        cout << t.tm_mon << endl;
+
+    }
+    else if(key == "tags")         tags = splitString(value, ',');
 }
 
 void Post::readContents(const filesystem::path& filePath)
@@ -79,6 +96,7 @@ string Post::make_preview(const string& postPreviewTemplate, const string& topAd
     string output = regex_replace(postPreviewTemplate, regex("\\{\\{title\\}\\}"), title);
     output = regex_replace(output, regex("\\{\\{tagline\\}\\}"), tagline);
     output = regex_replace(output, regex("\\{\\{date\\}\\}"), date);
+    output = regex_replace(output, regex("\\{\\{link\\}\\}"), (topAddress + "/" + filename));
 
     return output;
 }

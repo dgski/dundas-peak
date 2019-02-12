@@ -19,9 +19,10 @@ struct Post
     
     Post() : content(false) {}
     void processMetadataLine(const string& line);
-    void readContents(const char* filename);
+    void readContents(const filesystem::path& filePath);
     void generate(const string& postTemplate, const filesystem::path& publicPath) const;
     shared_ptr<HTMLElement> make_preview(const string& topAddress) const;
+    string make_preview(const string& postPreviewTemplate, const string& topAddress) const;
 };
 
 #pragma once

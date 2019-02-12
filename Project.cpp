@@ -7,11 +7,11 @@ void Project::processMetadataLine(const string& line)
 {
     const auto [key, value] = getLineKeyValuePair(line);
 
-    if(key == "title")             title = value;
-    if(key == "date")              date = value;
-    if(key == "tagline")           tagline = value;
-    if(key == "link")              link = value;
-    if(key == "technologies")      technologies = splitString(value, ',');
+    if(key == "title")                  title = value;
+    else if(key == "date")              date = value;
+    else if(key == "tagline")           tagline = value;
+    else if(key == "link")              link = value;
+    else if(key == "technologies")      technologies = splitString(value, ',');
 }
 
 void Project::readContents(const filesystem::path& filePath)
@@ -82,7 +82,7 @@ string Project::make_preview(const string& projectPreviewTemplate, const string&
     string output = regex_replace(projectPreviewTemplate, regex("\\{\\{title\\}\\}"), title);
     output = regex_replace(output, regex("\\{\\{tagline\\}\\}"), tagline);
     output = regex_replace(output, regex("\\{\\{date\\}\\}"), date);
-    output = regex_replace(output, regex("\\{\\{link\\}\\}"), date);
+    output = regex_replace(output, regex("\\{\\{link\\}\\}"), link);
 
     return output;
 }
