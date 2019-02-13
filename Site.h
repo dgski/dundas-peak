@@ -7,6 +7,8 @@
 #include "Post.h"
 #include "Project.h"
 
+#define PREVIEWS_LIMIT    4
+
 using namespace std;
 
 struct HeadingLink

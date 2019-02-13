@@ -26,4 +26,6 @@ struct Project
     string make_preview(const string& projectPreviewTemplate, const string& topAddress) const;
 };
 
+string make_allProjectPreviewsLink(const string& postsPath);
+
 #pragma once

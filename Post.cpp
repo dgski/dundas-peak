@@ -72,25 +72,6 @@ void Post::generate(const string& postTemplate, const filesystem::path& publicPa
     html_out << output;
 }
 
-shared_ptr<HTMLElement> Post::make_preview(const string& topAddress) const
-{
-    auto div = make_HTMLElement("div");
-    div->setAttribute("class","post-preview");
-
-    auto a = make_HTMLElement("a");
-    a
-    ->setAttribute("href", (topAddress + "/" + filename).c_str())
-    ->setAttribute("style","display: block");
-    a->appendChild(make_TextElement(title.c_str()));
-    div->appendChild(a);
-
-    auto i = make_HTMLElement("i");
-    i->appendChild(make_TextElement(tagline.c_str()));
-    div->appendChild(i);
-
-    return div;
-}
-
 string Post::make_preview(const string& postPreviewTemplate, const string& topAddress) const
 {
     string output = regex_replace(postPreviewTemplate, regex("\\{\\{title\\}\\}"), title);
@@ -99,4 +80,19 @@ string Post::make_preview(const string& postPreviewTemplate, const string& topAd
     output = regex_replace(output, regex("\\{\\{link\\}\\}"), (topAddress + "/" + filename));
 
     return output;
+}
+
+string make_allPostPreviewsLink(const string& postsPath)
+{
+    stringstream ss;
+    
+    auto a = make_HTMLElement("a");
+    a
+    ->setAttribute("href", postsPath.c_str())
+    ->setAttribute("class", "all-previews-link");
+    a->appendChild(make_TextElement("All Posts..."));
+
+    ss << *a;
+
+    return ss.str();
 }

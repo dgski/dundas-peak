@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <algorithm>
 
 #include "Site.h"
 #include "Utils.h"
@@ -151,11 +152,19 @@ string Site::generateHomePage()
         output = regex_replace(homeTemplate, regex("\\{\\{header\\}\\}"), header);
     }
 
+    // Add title to home page
+    {
+        output = regex_replace(output, regex("\\{\\{name\\}\\}"), name);
+    }
+
     // Generate post previews and add to output
     {
         string postPreviews;
-        for(auto p : posts)
-            postPreviews.append(p.make_preview(postPreviewTemplate, topAddress));
+        for(int i = 0; i < min(int(posts.size()), PREVIEWS_LIMIT); i++)
+            postPreviews.append(posts.at(i).make_preview(postPreviewTemplate, topAddress));
+
+        if(posts.size() > PREVIEWS_LIMIT)
+            postPreviews += make_allPostPreviewsLink(topAddress + "/posts");
 
         output = regex_replace(output, regex("\\{\\{posts\\}\\}"), postPreviews);
     }
@@ -163,8 +172,11 @@ string Site::generateHomePage()
     // Generate project previews and add to output
     {
         string projectPreviews;
-        for(auto p : projects)
-            projectPreviews.append(p.make_preview(projectPreviewTemplate, topAddress));
+        for(int i = 0; i < min(int(projects.size()), PREVIEWS_LIMIT); i++)
+            projectPreviews.append(projects.at(i).make_preview(projectPreviewTemplate, topAddress));
+
+        if(projects.size() > PREVIEWS_LIMIT)
+            projectPreviews += make_allProjectPreviewsLink(topAddress + "/projects");
 
         output = regex_replace(output, regex("\\{\\{projects\\}\\}"), projectPreviews);
     }

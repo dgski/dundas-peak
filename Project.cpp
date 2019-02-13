@@ -86,3 +86,18 @@ string Project::make_preview(const string& projectPreviewTemplate, const string&
 
     return output;
 }
+
+string make_allProjectPreviewsLink(const string& postsPath)
+{
+    stringstream ss;
+    
+    auto a = make_HTMLElement("a");
+    a
+    ->setAttribute("href", postsPath.c_str())
+    ->setAttribute("class", "all-previews-link");
+    a->appendChild(make_TextElement("All Projects..."));
+
+    ss << *a;
+
+    return ss.str();
+}
