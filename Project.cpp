@@ -8,7 +8,7 @@ void Project::processMetadataLine(const string& line)
     const auto [key, value] = getLineKeyValuePair(line);
 
     if(key == "title")                  title = value;
-    else if(key == "date")              date = value;
+    else if(key == "date")              datetime.set(value, DEFAULT_DATETIME_FORMAT);
     else if(key == "tagline")           tagline = value;
     else if(key == "link")              link = value;
     else if(key == "technologies")      technologies = splitString(value, ',');
@@ -44,8 +44,8 @@ void Project::generate(const string& projectTemplate, const filesystem::path& pu
     // Templating
     string output = regex_replace(projectTemplate, regex("\\{\\{title\\}\\}"), title);
     output = regex_replace(output, regex("\\{\\{tagline\\}\\}"), tagline);
-    output = regex_replace(output, regex("\\{\\{date\\}\\}"), date);
-    output = regex_replace(output, regex("\\{\\{link\\}\\}"), date);
+    output = regex_replace(output, regex("\\{\\{date\\}\\}"), datetime.toString(DEFAULT_DATETIME_FORMAT));
+    output = regex_replace(output, regex("\\{\\{link\\}\\}"), link);
     // TODO: MISSING LINKS
     output = regex_replace(output, regex("\\{\\{content\\}\\}"), parseResults.str());
     
@@ -81,7 +81,7 @@ string Project::make_preview(const string& projectPreviewTemplate, const string&
 {
     string output = regex_replace(projectPreviewTemplate, regex("\\{\\{title\\}\\}"), title);
     output = regex_replace(output, regex("\\{\\{tagline\\}\\}"), tagline);
-    output = regex_replace(output, regex("\\{\\{date\\}\\}"), date);
+    output = regex_replace(output, regex("\\{\\{date\\}\\}"), datetime.toString(DEFAULT_DATETIME_FORMAT));
     output = regex_replace(output, regex("\\{\\{link\\}\\}"), link);
 
     return output;

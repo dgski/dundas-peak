@@ -4,6 +4,7 @@
 
 #include "html-element/HTMLElement.h"
 #include "markdown-to-html/MarkdownToHTML.h"
+#include "SimpleTime.h"
 
 using namespace std;
 
@@ -13,7 +14,7 @@ struct Project
 
     string title;
     string tagline;
-    string date;
+    SimpleTime datetime;
     string link;
     vector<string> technologies;
     MarkdownToHTML content;

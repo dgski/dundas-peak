@@ -11,22 +11,7 @@ void Post::processMetadataLine(const string& line)
 
     if(key == "title")             title = value;
     else if(key == "tagline")      tagline = value;
-    else if(key == "date")
-    {
-        date = value;
-        cout << "DATE:" << date << endl;
-        tm t = {};
-
-        stringstream ss {date};
-        
-        ss >> get_time(&t, "%Y-%b-%d %H:%M:%S");
-
-        cout << t.tm_min << endl;
-        cout << t.tm_hour << endl;
-        cout << t.tm_year << endl;
-        cout << t.tm_mon << endl;
-
-    }
+    else if(key == "date")         datetime.set(value, DEFAULT_DATETIME_FORMAT);
     else if(key == "tags")         tags = splitString(value, ',');
 }
 
@@ -60,7 +45,7 @@ void Post::generate(const string& postTemplate, const filesystem::path& publicPa
     // Templating
     string output = regex_replace(postTemplate, regex("\\{\\{title\\}\\}"), title);
     output = regex_replace(output, regex("\\{\\{tagline\\}\\}"), tagline);
-    output = regex_replace(output, regex("\\{\\{date\\}\\}"), date);
+    output = regex_replace(output, regex("\\{\\{date\\}\\}"), datetime.toString(DEFAULT_DATETIME_FORMAT));
     output = regex_replace(output, regex("\\{\\{content\\}\\}"), parseResults.str());
     
     filesystem::create_directory(publicPath / filename);
@@ -76,7 +61,7 @@ string Post::make_preview(const string& postPreviewTemplate, const string& topAd
 {
     string output = regex_replace(postPreviewTemplate, regex("\\{\\{title\\}\\}"), title);
     output = regex_replace(output, regex("\\{\\{tagline\\}\\}"), tagline);
-    output = regex_replace(output, regex("\\{\\{date\\}\\}"), date);
+    output = regex_replace(output, regex("\\{\\{date\\}\\}"), datetime.toString(DEFAULT_DATETIME_FORMAT));
     output = regex_replace(output, regex("\\{\\{link\\}\\}"), (topAddress + "/" + filename));
 
     return output;

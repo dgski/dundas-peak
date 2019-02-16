@@ -48,7 +48,7 @@ void Site::processHeaderLinks(const string& linksString)
     
     for(string& l : splitString(linksString, ','))
     {
-        if(regex_match(l, matches, linkRegex))
+        if(regex_match(l, matches, regex("\\[(.+)\\]\\((.+)\\)")))
             links.push_back(HeadingLink{matches[1].str(),matches[2].str()});
     }
 }
@@ -61,7 +61,9 @@ void Site::generateHeader()
     ->appendChild(make_TextElement(name.c_str()));
 
     auto em = make_HTMLElement("em");
-    em->appendChild(make_TextElement(tagline.c_str()));
+    em
+    ->setAttribute("class", "tagline")
+    ->appendChild(make_TextElement(tagline.c_str()));
 
     auto div_header_links = make_HTMLElement("div");
     div_header_links->setAttribute("class","header-links");
@@ -122,6 +124,11 @@ void Site::readPosts()
         currentPost.filename = postFileName.path().stem().c_str();
         currentPost.readContents(postFileName.path());
     }
+    
+    sort(posts.begin(), posts.end(), [](const Post& a, const Post& b)
+    {
+        return !(a.datetime.isBefore(b.datetime));
+    });
 }
 
 void Site::readProjects()
@@ -138,6 +145,11 @@ void Site::readProjects()
         currentProject.filename = projectFileName.path().stem().c_str();
         currentProject.readContents(projectFileName.path());
     }
+
+    sort(projects.begin(), projects.end(), [](const Project& a, const Project& b)
+    {
+        return !(a.datetime.isBefore(b.datetime));
+    });
 }
 
 string Site::generateHomePage()
