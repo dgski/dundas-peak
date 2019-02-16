@@ -9,6 +9,20 @@ class SimpleTime
 {
     tm t;
 
+    bool compare(const SimpleTime& other, function<bool(int,int)> func, bool caseRetVal) const
+    {
+        const tm& o = other.getTimeStruct();
+
+        if(func(t.tm_year, o.tm_year))      return caseRetVal;
+        if(func(t.tm_mon, o.tm_mon))        return caseRetVal;
+        if(func(t.tm_mday, o.tm_mday))      return caseRetVal;
+        if(func(t.tm_hour, o.tm_hour))      return caseRetVal;
+        if(func(t.tm_min, o.tm_min))        return caseRetVal;
+        if(func(t.tm_sec, o.tm_sec))        return caseRetVal;
+
+        return !caseRetVal;
+    }
+
 public:
     SimpleTime() : t()
     {}
@@ -36,20 +50,6 @@ public:
         stringstream ss;
         ss << put_time(&t, fmt);
         return ss.str();
-    }
-
-    bool compare(const SimpleTime& other, function<bool(int,int)> func, bool caseRetVal) const
-    {
-        const tm& o = other.getTimeStruct();
-
-        if(func(t.tm_year, o.tm_year))      return caseRetVal;
-        if(func(t.tm_mon, o.tm_mon))        return caseRetVal;
-        if(func(t.tm_mday, o.tm_mday))      return caseRetVal;
-        if(func(t.tm_hour, o.tm_hour))      return caseRetVal;
-        if(func(t.tm_min, o.tm_min))        return caseRetVal;
-        if(func(t.tm_sec, o.tm_sec))        return caseRetVal;
-
-        return !caseRetVal;
     }
 
     bool isEqual(const SimpleTime& other) const

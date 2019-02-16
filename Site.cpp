@@ -124,10 +124,10 @@ void Site::readPosts()
         currentPost.filename = postFileName.path().stem().c_str();
         currentPost.readContents(postFileName.path());
     }
-    
+
     sort(posts.begin(), posts.end(), [](const Post& a, const Post& b)
     {
-        return !(a.datetime.isBefore(b.datetime));
+        return !(a.datetime < b.datetime);
     });
 }
 
@@ -148,7 +148,7 @@ void Site::readProjects()
 
     sort(projects.begin(), projects.end(), [](const Project& a, const Project& b)
     {
-        return !(a.datetime.isBefore(b.datetime));
+        return !(a.datetime < b.datetime);
     });
 }
 
@@ -173,7 +173,7 @@ string Site::generateHomePage()
     {
         string postPreviews;
         for(int i = 0; i < min(int(posts.size()), PREVIEWS_LIMIT); i++)
-            postPreviews.append(posts.at(i).make_preview(postPreviewTemplate, topAddress));
+            postPreviews.append(posts.at(i).make_preview(postPreviewTemplate, topAddress + "/posts"));
 
         if(posts.size() > PREVIEWS_LIMIT)
             postPreviews += make_allPostPreviewsLink(topAddress + "/posts");
@@ -185,7 +185,7 @@ string Site::generateHomePage()
     {
         string projectPreviews;
         for(int i = 0; i < min(int(projects.size()), PREVIEWS_LIMIT); i++)
-            projectPreviews.append(projects.at(i).make_preview(projectPreviewTemplate, topAddress));
+            projectPreviews.append(projects.at(i).make_preview(projectPreviewTemplate, topAddress + "/projects"));
 
         if(projects.size() > PREVIEWS_LIMIT)
             projectPreviews += make_allProjectPreviewsLink(topAddress + "/projects");
@@ -202,7 +202,7 @@ void Site::generate()
 
     filesystem::create_directory(publicPath);
     filesystem::create_directory(contentPath);
-    filesystem::create_directory(postsPath);
+    filesystem::create_directory(publicPath / "posts");
     filesystem::create_directory(projectsPath);
 
     createCssFile();
@@ -216,5 +216,5 @@ void Site::generate()
 
     // Generate Posts
     for(const auto p : posts)
-        p.generate(postTemplate, publicPath);
+        p.generate(postTemplate, publicPath / "posts");
 }

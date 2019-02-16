@@ -1,9 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <filesystem>
-#include <string>
-#include <vector>
-#include <regex>
+#include <chrono>
 
 #include "html-element/HTMLElement.h"
 #include "markdown-to-html/MarkdownToHTML.h"
@@ -27,20 +24,18 @@ int main(int argc, char** argv)
     site.setPath(argv[1]);
     //site.copyMainDirectory();
 
-    // 1. read heading.md
+    auto start = chrono::system_clock::now();
+
     site.readHeader();
-    
-    // 2. read posts
     site.readPosts();
-
-    // 3. read projects
     site.readProjects();
-
-    // 4. read about
     //site.readAbout(); TODO
-
-    // 5. read template and insert data
     site.generate();
+
+    auto end = chrono::system_clock::now();
+    auto dur = (end - start).count() /  1000000000.0;
+
+    cout << "Dundas-Peak Site Generation Took: " << dur << "s" << endl;
     
     return 0;
 }
