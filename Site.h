@@ -7,7 +7,7 @@
 #include "Post.h"
 #include "Project.h"
 
-#define PREVIEWS_LIMIT    4
+#define PREVIEWS_LIMIT    3
 
 using namespace std;
 
@@ -27,6 +27,7 @@ class Site
     filesystem::path parentPath;
     filesystem::path sourcePath;
     filesystem::path publicPath;
+    filesystem::path themePath;
     filesystem::path contentPath;
     filesystem::path postsPath;
     filesystem::path projectsPath;

@@ -10,19 +10,19 @@
 void Site::setPath(const char* path)
 {
     parentPath = path;
-    sourcePath = parentPath / "source";
+    contentPath = parentPath / "content";
     publicPath = parentPath / "public";
-    contentPath = sourcePath / "content";
+    themePath = parentPath / "theme";
     postsPath = contentPath / "posts";
     projectsPath = contentPath / "projects";
 }
 
 void Site::createCssFile()
 {
-    if(!filesystem::exists(sourcePath / "style.css"))
+    if(!filesystem::exists(themePath / "style.css"))
         return;
 
-    string cssInput = fileToString(sourcePath / "style.css");
+    string cssInput = fileToString(themePath / "style.css");
     cssInput = regex_replace(cssInput, regex("\\{\\{main_color\\}\\}"), mainColor);
     cssInput = regex_replace(cssInput, regex("\\{\\{secondary_color\\}\\}"), secondaryColor);
 
@@ -86,7 +86,7 @@ void Site::generateHeader()
 
 void Site::readHeader()
 {
-    ifstream input(sourcePath / "header.md");
+    ifstream input(contentPath / "header.md");
 
     if(!input.is_open())
     {
@@ -112,8 +112,8 @@ void Site::readAbout()
 
 void Site::readPosts()
 {
-    postTemplate = fileToString(postsPath / "page_template.html");
-    postPreviewTemplate = fileToString(postsPath / "preview_template.html");
+    postTemplate = fileToString(themePath / "post.html");
+    postPreviewTemplate = fileToString(themePath / "post_preview.html");
 
     for(auto& postFileName : filesystem::directory_iterator(postsPath))
     {
@@ -133,8 +133,8 @@ void Site::readPosts()
 
 void Site::readProjects()
 {
-    projectTemplate = fileToString(projectsPath / "page_template.html");
-    projectPreviewTemplate = fileToString(projectsPath / "preview_template.html");
+    projectTemplate = fileToString(themePath / "project.html");
+    projectPreviewTemplate = fileToString(themePath / "project_preview.html");
 
     for(auto& projectFileName : filesystem::directory_iterator(projectsPath))
     {
@@ -154,7 +154,7 @@ void Site::readProjects()
 
 string Site::generateHomePage()
 {   
-    homeTemplate = fileToString(sourcePath / "page_template.html");
+    homeTemplate = fileToString(themePath / "home.html");
 
     string output;
 
@@ -213,6 +213,28 @@ void Site::generate()
 
     // Generate Home Page
     homePageFile << generateHomePage();
+
+    {
+        string postsTemplate = fileToString(themePath / "posts.html");
+
+        string postPreviews;
+        for(const Post& p : posts)
+            postPreviews.append(p.make_preview(postPreviewTemplate, topAddress + "/posts"));
+
+        string output = regex_replace(postsTemplate, regex("\\{\\{posts\\}\\}"), postPreviews);
+        output = regex_replace(output, regex("\\{\\{name\\}\\}"), name);
+
+
+        ofstream allPostsPage(publicPath / "posts" / "index.html");
+        if(!homePageFile.is_open())
+            throw "Could Not Open index.html to write!";
+
+        allPostsPage << output;
+    }
+
+
+
+
 
     // Generate Posts
     for(const auto p : posts)
