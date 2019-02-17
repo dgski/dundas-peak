@@ -46,15 +46,21 @@ class Site
 
     string postTemplate;
     string postPreviewTemplate;
+    string postsTemplate;
     vector<Post> posts;
 
     string projectTemplate;
     string projectPreviewTemplate;
+    string projectsTemplate;
     vector<Project> projects;
     
 public:
     shared_ptr<HTMLElement> header;
     Site() { header = make_HTMLElement("div"); }
+    Site(const char* path) : Site()
+    {
+        setPath(path);
+    }
 
     void setPath(const char* path);
     void createCssFile();
@@ -63,12 +69,13 @@ public:
     void processHeaderLinks(const string& linksString);
 
     void readHeader();
-    void readAbout();
     void readPosts();
     void readProjects();
 
     void generateHeader();
     string generateHomePage();
+    string generatePostsPage();
+    string generateProjectsPage();
     void generatePost(const Post& p);
 
     void generate();

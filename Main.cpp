@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
+#include <stdexcept>
 
 #include "html-element/HTMLElement.h"
 #include "markdown-to-html/MarkdownToHTML.h"
@@ -17,25 +18,25 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    // The Main Boi
-    Site site;
-
-    // 0. get directory
-    site.setPath(argv[1]);
-    //site.copyMainDirectory();
+    Site site(argv[1]);
 
     auto start = chrono::system_clock::now();
 
-    site.readHeader();
-    site.readPosts();
-    site.readProjects();
-    //site.readAbout(); TODO
-    site.generate();
+    try
+    {
+        site.readHeader();
+        site.readPosts();
+        site.readProjects();
+        site.generate();
+        auto end = chrono::system_clock::now();
+        auto dur = (end - start).count() /  1000000000.0;
 
-    auto end = chrono::system_clock::now();
-    auto dur = (end - start).count() /  1000000000.0;
-
-    cout << "Dundas-Peak Site Generation Took: " << dur << "s" << endl;
+        cout << "Dundas Peak Site Generation Took: " << dur << "s" << endl;
+    }
+    catch(const exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
     
     return 0;
 }

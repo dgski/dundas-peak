@@ -1,4 +1,5 @@
 #include <fstream>
+#include <stdexcept>
 
 #include "Project.h"
 #include "Utils.h"
@@ -16,14 +17,13 @@ void Project::processMetadataLine(const string& line)
 
 void Project::readContents(const filesystem::path& filePath)
 {
-    ifstream page(filePath);        
-    if(!page.is_open()) throw "Error!";
+    ifstream page = openFile<ifstream>(filePath);        
 
     string line;
 
     // Metadata
     if(!getline(page,line) || line != "---")
-        throw "Post is missing Metadata";
+        throw runtime_error("Post is missing Metadata");
 
     while(getline(page, line))
     {
@@ -50,12 +50,7 @@ void Project::generate(const string& projectTemplate, const filesystem::path& pu
     output = regex_replace(output, regex("\\{\\{content\\}\\}"), parseResults.str());
     
     filesystem::create_directory(publicPath / filename);
-    ofstream html_out(publicPath / filename / "index.html");
-
-    if(!html_out.is_open())
-        throw "Could not open output file!";
-
-    html_out << output;
+    stringToFile(publicPath / filename / "index.html", output);
 }
 
 shared_ptr<HTMLElement> Project::make_preview(const string& topAddress) const

@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iomanip>
 #include <sstream>
+#include <stdexcept>
 
 #include "Post.h"
 #include "Utils.h"
@@ -17,14 +18,12 @@ void Post::processMetadataLine(const string& line)
 
 void Post::readContents(const filesystem::path& filePath)
 {
-    ifstream page(filePath);        
-    if(!page.is_open()) throw "Error!";
-
+    ifstream page = openFile<ifstream>(filePath);
     string line;
 
     // Metadata
     if(!getline(page,line) || line != "---")
-        throw "Post is missing Metadata";
+        throw runtime_error("Post is missing Metadata");
 
     while(getline(page, line))
     {
@@ -49,12 +48,7 @@ void Post::generate(const string& postTemplate, const filesystem::path& publicPa
     output = regex_replace(output, regex("\\{\\{content\\}\\}"), parseResults.str());
     
     filesystem::create_directory(publicPath / filename);
-    ofstream html_out(publicPath / filename / "index.html");
-
-    if(!html_out.is_open())
-        throw "Could not open output file!";
-
-    html_out << output;
+    stringToFile(publicPath / filename / "index.html", output);
 }
 
 string Post::make_preview(const string& postPreviewTemplate, const string& topAddress) const

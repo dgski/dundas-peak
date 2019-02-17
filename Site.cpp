@@ -3,6 +3,7 @@
 #include <fstream>
 #include <filesystem>
 #include <algorithm>
+#include <stdexcept>
 
 #include "Site.h"
 #include "Utils.h"
@@ -22,12 +23,11 @@ void Site::createCssFile()
     if(!filesystem::exists(themePath / "style.css"))
         return;
 
-    string cssInput = fileToString(themePath / "style.css");
-    cssInput = regex_replace(cssInput, regex("\\{\\{main_color\\}\\}"), mainColor);
-    cssInput = regex_replace(cssInput, regex("\\{\\{secondary_color\\}\\}"), secondaryColor);
+    string css = fileToString(themePath / "style.css");
+    css = regex_replace(css, regex("\\{\\{main_color\\}\\}"), mainColor);
+    css = regex_replace(css, regex("\\{\\{secondary_color\\}\\}"), secondaryColor);
 
-    ofstream cssOutput(publicPath / "style.css");
-    cssOutput << cssInput;
+    stringToFile(publicPath / "style.css", css);
 }
 
 void Site::processHeaderLine(const string& line)
@@ -86,28 +86,10 @@ void Site::generateHeader()
 
 void Site::readHeader()
 {
-    ifstream input(contentPath / "header.md");
-
-    if(!input.is_open())
-    {
-        cout << "Error" << endl;
-        throw "Could Not Open Header file!";
-    }
-    
+    ifstream input = openFile<ifstream>(contentPath / "header.md");
     string line;
     while(getline(input,line))
         processHeaderLine(line);
-}
-
-void Site::readAbout()
-{
-    auto template_path = contentPath / "about.md";
-
-    // read template
-    ifstream fff(template_path);
-    stringstream aboutHtmlTemplate;
-    aboutHtmlTemplate << fff.rdbuf();
-    aboutTemplate = aboutHtmlTemplate.str();
 }
 
 void Site::readPosts()
@@ -159,39 +141,59 @@ string Site::generateHomePage()
     string output;
 
     //  Generate Header and add to output
-    {
-        generateHeader();
-        output = regex_replace(homeTemplate, regex("\\{\\{header\\}\\}"), header);
-    }
+    generateHeader();
+    output = regex_replace(homeTemplate, regex("\\{\\{header\\}\\}"), header);
 
     // Add title to home page
-    {
-        output = regex_replace(output, regex("\\{\\{name\\}\\}"), name);
-    }
+    output = regex_replace(output, regex("\\{\\{name\\}\\}"), name);
 
     // Generate post previews and add to output
-    {
-        string postPreviews;
-        for(int i = 0; i < min(int(posts.size()), PREVIEWS_LIMIT); i++)
-            postPreviews.append(posts.at(i).make_preview(postPreviewTemplate, topAddress + "/posts"));
+    string postPreviews;
+    for(int i = 0; i < min(int(posts.size()), PREVIEWS_LIMIT); i++)
+        postPreviews.append(posts.at(i).make_preview(postPreviewTemplate, topAddress + "/posts"));
 
-        if(posts.size() > PREVIEWS_LIMIT)
-            postPreviews += make_allPostPreviewsLink(topAddress + "/posts");
+    if(posts.size() > PREVIEWS_LIMIT)
+        postPreviews += make_allPostPreviewsLink(topAddress + "/posts");
 
-        output = regex_replace(output, regex("\\{\\{posts\\}\\}"), postPreviews);
-    }
+    output = regex_replace(output, regex("\\{\\{posts\\}\\}"), postPreviews);
 
     // Generate project previews and add to output
-    {
-        string projectPreviews;
-        for(int i = 0; i < min(int(projects.size()), PREVIEWS_LIMIT); i++)
-            projectPreviews.append(projects.at(i).make_preview(projectPreviewTemplate, topAddress + "/projects"));
+    string projectPreviews;
+    for(int i = 0; i < min(int(projects.size()), PREVIEWS_LIMIT); i++)
+        projectPreviews.append(projects.at(i).make_preview(projectPreviewTemplate, topAddress + "/projects"));
 
-        if(projects.size() > PREVIEWS_LIMIT)
-            projectPreviews += make_allProjectPreviewsLink(topAddress + "/projects");
+    if(projects.size() > PREVIEWS_LIMIT)
+        projectPreviews += make_allProjectPreviewsLink(topAddress + "/projects");
 
-        output = regex_replace(output, regex("\\{\\{projects\\}\\}"), projectPreviews);
-    }
+    output = regex_replace(output, regex("\\{\\{projects\\}\\}"), projectPreviews);
+
+    return output;
+}
+
+string Site::generatePostsPage()
+{
+    postsTemplate = fileToString(themePath / "posts.html");
+
+    string postPreviews;
+    for(const Post& p : posts)
+        postPreviews.append(p.make_preview(postPreviewTemplate, topAddress + "/posts"));
+
+    string output = regex_replace(postsTemplate, regex("\\{\\{posts\\}\\}"), postPreviews);
+    output = regex_replace(output, regex("\\{\\{name\\}\\}"), name);
+
+    return output;
+}
+
+string Site::generateProjectsPage()
+{
+    projectsTemplate = fileToString(themePath / "projects.html");
+
+    string projectsPreviews;
+    for(const Project& p : projects)
+        projectsPreviews.append(p.make_preview(projectPreviewTemplate, topAddress + "/projects"));
+
+    string output = regex_replace(projectsTemplate, regex("\\{\\{projects\\}\\}"), projectsPreviews);
+    output = regex_replace(output, regex("\\{\\{name\\}\\}"), name);
 
     return output;
 }
@@ -203,40 +205,15 @@ void Site::generate()
     filesystem::create_directory(publicPath);
     filesystem::create_directory(contentPath);
     filesystem::create_directory(publicPath / "posts");
+    filesystem::create_directory(publicPath / "projects");
     filesystem::create_directory(projectsPath);
 
     createCssFile();
 
-    ofstream homePageFile(publicPath / "index.html");
-    if(!homePageFile.is_open())
-        throw "Could Not Open index.html to write!";
+    stringToFile(publicPath / "index.html", generateHomePage());
+    stringToFile(publicPath / "posts" / "index.html", generatePostsPage());
+    stringToFile(publicPath / "projects" / "index.html", generateProjectsPage());
 
-    // Generate Home Page
-    homePageFile << generateHomePage();
-
-    {
-        string postsTemplate = fileToString(themePath / "posts.html");
-
-        string postPreviews;
-        for(const Post& p : posts)
-            postPreviews.append(p.make_preview(postPreviewTemplate, topAddress + "/posts"));
-
-        string output = regex_replace(postsTemplate, regex("\\{\\{posts\\}\\}"), postPreviews);
-        output = regex_replace(output, regex("\\{\\{name\\}\\}"), name);
-
-
-        ofstream allPostsPage(publicPath / "posts" / "index.html");
-        if(!homePageFile.is_open())
-            throw "Could Not Open index.html to write!";
-
-        allPostsPage << output;
-    }
-
-
-
-
-
-    // Generate Posts
     for(const auto p : posts)
         p.generate(postTemplate, publicPath / "posts");
 }

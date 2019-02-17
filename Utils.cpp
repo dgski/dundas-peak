@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 
 #include "Utils.h"
 
@@ -58,11 +59,29 @@ string regex_replace(string templ, const regex& expression, shared_ptr<HTMLEleme
     return regex_replace(templ, expression, s.str());
 }
 
-string fileToString(const filesystem::path& input)
+string fileToString(const filesystem::path& filePath)
 {
-    ifstream homeTemplate(input);
     stringstream s;
-    s << homeTemplate.rdbuf();
+    s << openFile<ifstream>(filePath).rdbuf();
 
     return s.str();
+}
+
+void stringToFile(const filesystem::path& filePath, const string& output)
+{
+    openFile<ofstream>(filePath) << output;
+}
+
+template <class T>
+T openFile(const filesystem::path& filePath)
+{
+    T f(filePath);
+    if(!f.is_open())
+    {
+        string errString("Could Not Open File: ");
+        errString.append(filePath);
+        throw runtime_error(errString);
+    }
+
+    return f;
 }
