@@ -55,7 +55,7 @@ string Post::make_preview(const string& postPreviewTemplate, const string& topAd
 {
     string output = regex_replace(postPreviewTemplate, regex("\\{\\{title\\}\\}"), title);
     output = regex_replace(output, regex("\\{\\{tagline\\}\\}"), tagline);
-    output = regex_replace(output, regex("\\{\\{date\\}\\}"), datetime.toString(DEFAULT_DATETIME_FORMAT));
+    output = regex_replace(output, regex("\\{\\{date\\}\\}"), datetime.toString(DEFAULT_DATE_FORMAT));
     output = regex_replace(output, regex("\\{\\{link\\}\\}"), (topAddress + "/" + filename));
 
     return output;

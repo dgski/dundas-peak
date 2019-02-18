@@ -53,29 +53,29 @@ void Project::generate(const string& projectTemplate, const filesystem::path& pu
     stringToFile(publicPath / filename / "index.html", output);
 }
 
-shared_ptr<HTMLElement> Project::make_preview(const string& topAddress) const
+string Project::generateTechnologiesPreviews() const
 {
-    auto div = make_HTMLElement("div");
-    div->setAttribute("class","projects-preview");
+    string output;
 
-    auto a = make_HTMLElement("a");
-    a
-    ->setAttribute("href", (link).c_str())
-    ->setAttribute("style","display: block");
-    a->appendChild(make_TextElement(title.c_str()));
-    div->appendChild(a);
+    for(const string& t: technologies)
+    {
+        auto span = make_HTMLElement("span");
+        span
+        ->setAttribute("class","technology")
+        ->appendChild(make_TextElement(t.c_str()));
+        stringstream ss;
+        ss << *span;
+        output.append(ss.str());
+    }
 
-    auto i = make_HTMLElement("i");
-    i->appendChild(make_TextElement(tagline.c_str()));
-    div->appendChild(i);
-
-    return div;
+    return output;
 }
 
 string Project::make_preview(const string& projectPreviewTemplate, const string& topAddress) const
 {
     string output = regex_replace(projectPreviewTemplate, regex("\\{\\{title\\}\\}"), title);
     output = regex_replace(output, regex("\\{\\{tagline\\}\\}"), tagline);
+    output = regex_replace(output, regex("\\{\\{technologies\\}\\}"), generateTechnologiesPreviews());
     output = regex_replace(output, regex("\\{\\{date\\}\\}"), datetime.toString(DEFAULT_DATETIME_FORMAT));
     output = regex_replace(output, regex("\\{\\{link\\}\\}"), link);
 

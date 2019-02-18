@@ -4,7 +4,7 @@
 
 #include "html-element/HTMLElement.h"
 #include "markdown-to-html/MarkdownToHTML.h"
-#include "SimpleTime.h"
+#include "simple-time/SimpleTime.h"
 
 using namespace std;
 
@@ -23,7 +23,7 @@ struct Project
     void processMetadataLine(const string& line);
     void readContents(const filesystem::path& filePath);
     void generate(const string& projectTemplate, const filesystem::path& publicPath) const;
-    shared_ptr<HTMLElement> make_preview(const string& topAddress) const;
+    string generateTechnologiesPreviews() const;
     string make_preview(const string& projectPreviewTemplate, const string& topAddress) const;
 };
 

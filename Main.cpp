@@ -1,11 +1,8 @@
 #include <iostream>
-#include <fstream>
 #include <chrono>
 #include <stdexcept>
 
 #include "html-element/HTMLElement.h"
-#include "markdown-to-html/MarkdownToHTML.h"
-
 #include "Site.h"
 
 using namespace std;
@@ -19,7 +16,6 @@ int main(int argc, char** argv)
     }
 
     Site site(argv[1]);
-
     auto start = chrono::system_clock::now();
 
     try
@@ -28,9 +24,9 @@ int main(int argc, char** argv)
         site.readPosts();
         site.readProjects();
         site.generate();
+
         auto end = chrono::system_clock::now();
         auto dur = (end - start).count() /  1000000000.0;
-
         cout << "Dundas Peak Site Generation Took: " << dur << "s" << endl;
     }
     catch(const exception& e)

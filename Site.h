@@ -17,11 +17,6 @@ struct HeadingLink
     string url;
 };
 
-struct About
-{
-    MarkdownToHTML content;
-};
-
 class Site
 {
     filesystem::path parentPath;
@@ -42,7 +37,6 @@ class Site
     vector<HeadingLink> links;
 
     string aboutTemplate;
-    About about;
 
     string postTemplate;
     string postPreviewTemplate;
@@ -76,7 +70,6 @@ public:
     string generateHomePage();
     string generatePostsPage();
     string generateProjectsPage();
-    void generatePost(const Post& p);
 
     void generate();
 };

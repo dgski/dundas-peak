@@ -4,7 +4,7 @@
 
 #include "html-element/HTMLElement.h"
 #include "markdown-to-html/MarkdownToHTML.h"
-#include "SimpleTime.h"
+#include "simple-time/SimpleTime.h"
 
 using namespace std;
 
