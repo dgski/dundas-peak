@@ -1,3 +1,6 @@
 [submodule "simple-time"]
 	path = simple-time
 	url = https://github.com/dgski/simple-time
+[submodule "markdown-to-html"]
+	path = markdown-to-html
+	url = https://github.com/dgski/markdown-to-html
