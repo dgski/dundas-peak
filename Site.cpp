@@ -200,13 +200,32 @@ string Site::generateProjectsPage()
 
 void Site::generate()
 {
-    filesystem::remove_all(publicPath);
+    //filesystem::remove_all(publicPath);
 
-    filesystem::create_directory(publicPath);
-    filesystem::create_directory(contentPath);
+    if(!filesystem::exists(publicPath))
+        filesystem::create_directory(publicPath);
+
+    if(filesystem::exists(contentPath / "files"))
+    {
+        if(filesystem::exists(publicPath / "files"))
+            filesystem::remove_all(publicPath / "files");
+        filesystem::copy(contentPath / "files", publicPath / "files");
+        
+    }
+
+    if(filesystem::exists(publicPath / "posts"))
+        filesystem::remove_all(publicPath / "posts");
     filesystem::create_directory(publicPath / "posts");
+    
+    if(filesystem::exists(publicPath / "projects"))
+        filesystem::remove_all(publicPath / "projects");
     filesystem::create_directory(publicPath / "projects");
-    filesystem::create_directory(projectsPath);
+    
+    if(filesystem::exists(publicPath / "index.html"))
+        filesystem::remove(publicPath / "index.html");
+
+    if(filesystem::exists(publicPath / "style.css"))
+        filesystem::remove(publicPath / "style.css");
 
     createCssFile();
 
