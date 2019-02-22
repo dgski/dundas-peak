@@ -35,8 +35,6 @@ class Site
     string homeTemplate;
     vector<HeadingLink> links;
 
-    string aboutTemplate;
-
     string postTemplate;
     string postPreviewTemplate;
     string postsTemplate;
