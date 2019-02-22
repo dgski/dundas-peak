@@ -1,5 +1,5 @@
 # Dundas Peak Simple Static Site Generator
-**Dundas Peak** is No-Nonsense, Low Configuration Personal Site Generator for Developers. It doesn't offer much flexibility because it  creates websites with the most basic features most developers need:
+Dundas Peak is **No-Nonsense, Low Configuration Personal Site Generator** for Developers. It doesn't offer much flexibility because it  creates websites with the most basic features most developers need:
 - Showcased Links (contact information, repos, resume, email, linkedIN etc...)
 - A portfolio for projects
 - A simple blog
