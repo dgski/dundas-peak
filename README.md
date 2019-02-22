@@ -6,7 +6,7 @@ Dundas Peak is **No-Nonsense, Low Configuration Personal Site Generator** for De
 
 Because that's all you really need!
 
-# Getting Started
+## Getting Started
 
 Dundas Peak starts with a very simple, almost flat directory structure. Here is a sample site directory with all the required files:
 
