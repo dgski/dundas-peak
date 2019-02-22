@@ -234,5 +234,5 @@ void Site::generate()
     stringToFile(publicPath / "projects" / "index.html", generateProjectsPage());
 
     for(const auto p : posts)
-        p.generate(postTemplate, publicPath / "posts");
+        p.generate(postTemplate, name, publicPath / "posts");
 }

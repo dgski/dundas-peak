@@ -36,7 +36,7 @@ void Post::readContents(const filesystem::path& filePath)
         content.processLine(line);
 }
 
-void Post::generate(const string& postTemplate, const filesystem::path& publicPath) const
+void Post::generate(const string& postTemplate, const string& authorName, const filesystem::path& publicPath) const
 {
     stringstream parseResults;
     parseResults << content;
@@ -44,6 +44,7 @@ void Post::generate(const string& postTemplate, const filesystem::path& publicPa
     // Templating
     string output = regex_replace(postTemplate, regex("\\{\\{title\\}\\}"), title);
     output = regex_replace(output, regex("\\{\\{tagline\\}\\}"), tagline);
+    output = regex_replace(output, regex("\\{\\{name\\}\\}"), authorName);
     output = regex_replace(output, regex("\\{\\{date\\}\\}"), datetime.toString(DEFAULT_DATETIME_FORMAT));
     output = regex_replace(output, regex("\\{\\{content\\}\\}"), parseResults.str());
     

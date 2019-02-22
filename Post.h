@@ -20,7 +20,7 @@ struct Post
     Post() : content(false) {}
     void processMetadataLine(const string& line);
     void readContents(const filesystem::path& filePath);
-    void generate(const string& postTemplate, const filesystem::path& publicPath) const;
+    void generate(const string& postTemplate, const string& authorName, const filesystem::path& publicPath) const;
     string make_preview(const string& postPreviewTemplate, const string& topAddress) const;
 };
 
