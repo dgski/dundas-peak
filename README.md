@@ -38,12 +38,12 @@ You can create posts by simply placing markdown files into **site/posts**. Add t
 
 ```
 ---
-title: <Post Title>
-tagline: <A Short Description of Your Post>
-date: <Date Time with the following format: "YYYY/MM/DD HH:MM:SS">
+title: {Post Title}
+tagline: {A Short Description of Your Post}
+date: {Date Time with the following format: "YYYY/MM/DD HH:MM:SS"}
 ---
 
-<Post Markdown Content>
+{Post Markdown Content}
 ```
 
 ### Projects
@@ -52,11 +52,11 @@ You can add projects by simply placing markdown files into **site/projects**. A 
 
 ```
 ---
-title: <Project Title>
-date: <Date Time with the following format: "YYYY/MM/DD HH:MM:SS">
-tagline: <A Shirt Description of Your Project>
-link: <A link to your projects website or github repository>
-technologies: <A Comma Separated List with the following format: "<Tech>, <Tech>, <Tech>">
+title: {Project Title}
+date: {Date Time with the following format: "YYYY/MM/DD HH:MM:SS"}
+tagline: {A Shirt Description of Your Project}
+link: {A link to your projects website or github repository}
+technologies: {A Comma Separated List with the following format: "{Tech}, {Tech}, {Tech}"}
 ---
 ```
 
@@ -65,11 +65,11 @@ technologies: <A Comma Separated List with the following format: "<Tech>, <Tech>
 You can alter the header of your website by editing **site/header.md**. A proper **header.md** looks like this ("---" is necessary):
 ```
 ---
-name: <Name>
-tagline: <A Short Description About Yourself>
-links: <A Comma Separated List with the following format: "[<Link Text>](<Link Dest>), [<Link Text>](<Link Dest>)">
-main_color: <Header Background Color>
-secondary_color: <Non-Header Link Color>
-top_address: <Your sites top address - Usually will be your domain>
+name: {Name}
+tagline: {A Short Description About Yourself}
+links: {A Comma Separated List with the following format: "[{Link Text}]({Link Dest}), [{Link Text}]({Link Dest})"}
+main_color: {Header Background Color}
+secondary_color: {Non-Header Link Color}
+top_address: {Your sites top address - Usually will be your domain}
 ---
 ```
