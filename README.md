@@ -80,3 +80,28 @@ secondary_color: {Non-Header Link Color}
 top_address: {Your sites top address - Usually will be your domain}
 ---
 ```
+
+## Custom Themes
+
+You can create your own custom theme by creating a third, **theme** folder alongside the **content** and **public** folders.
+
+```
+site/
+    content/
+    theme/
+    public/
+```
+
+Inside this theme folder, place the following files:
+
+|    File Name     |   Description   |     Parameters    |
+|------------------|-----------------|-------------------|
+| home.html | The Home Page Template | {{name}}, {{header}}, {{projects}}, {{posts}} |
+| posts.html | The All Posts Page Template | {{name}}, {{posts}} |
+| post.html | The Post Content Template | {{title}}, {{tagline}}, {{content}}, {{name}}, {{date}} |
+| post_preview.html | The Post Preview Template | {{title}}, {{tagline}}, {{date}} |
+| projects.html | The All Projects Page Tempalte | {{name}}, {{projects}} |
+| project_preview.html | The Project Preview Template | {{title}}, {{tagline}}, {{technologies}} |
+| style.css | The Stylesheet Template | {{main_color}}, {{secondary_color}} |
+
+Each template will accept different parameters. Place these template handlebars anywhere you want in your HTML and CSS. Example Theme Files Included in Dundas Peak Repository.
