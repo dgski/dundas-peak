@@ -20,10 +20,7 @@ void Site::setPath(const char* path)
 
 void Site::createCssFile()
 {
-    if(!filesystem::exists(themePath / "style.css"))
-        return;
-
-    string css = fileToString(themePath / "style.css");
+    string css = fileToString(themePath / "style.css", defCSSTemplate);
     css = regex_replace(css, regex("\\{\\{main_color\\}\\}"), mainColor);
     css = regex_replace(css, regex("\\{\\{secondary_color\\}\\}"), secondaryColor);
 
@@ -94,8 +91,8 @@ void Site::readHeader()
 
 void Site::readPosts()
 {
-    postTemplate = fileToString(themePath / "post.html");
-    postPreviewTemplate = fileToString(themePath / "post_preview.html");
+    postTemplate = fileToString(themePath / "post.html", defPostTemplate);
+    postPreviewTemplate = fileToString(themePath / "post_preview.html", defPostPreviewTemplate);
 
     for(auto& postFileName : filesystem::directory_iterator(postsPath))
     {
@@ -115,8 +112,8 @@ void Site::readPosts()
 
 void Site::readProjects()
 {
-    projectTemplate = fileToString(themePath / "project.html");
-    projectPreviewTemplate = fileToString(themePath / "project_preview.html");
+    projectTemplate = fileToString(themePath / "project.html", defProjectsTemplate);
+    projectPreviewTemplate = fileToString(themePath / "project_preview.html", defProjectPreviewTemplate);
 
     for(auto& projectFileName : filesystem::directory_iterator(projectsPath))
     {
@@ -136,7 +133,7 @@ void Site::readProjects()
 
 string Site::generateHomePage()
 {   
-    homeTemplate = fileToString(themePath / "home.html");
+    homeTemplate = fileToString(themePath / "home.html", defHomeTemplate);
 
     string output;
 
@@ -235,4 +232,50 @@ void Site::generate()
 
     for(const auto p : posts)
         p.generate(postTemplate, name, publicPath / "posts");
+}
+
+void createThemeFolder(const char* stringPath)
+{
+    filesystem::path sitePath(stringPath); 
+
+    if(filesystem::exists(sitePath / "theme"))
+    {
+        cout << "Error: Theme Folder Already Exists." << endl;
+        return;
+    }
+
+    filesystem::create_directory(sitePath / "theme");
+    stringToFile(sitePath / "theme" / "home.html", defHomeTemplate);
+    stringToFile(sitePath / "theme" / "posts.html", defPostsTemplate);
+    stringToFile(sitePath / "theme" / "post.html", defPostTemplate);
+    stringToFile(sitePath / "theme" / "post_preview.html", defPostPreviewTemplate);
+    stringToFile(sitePath / "theme" / "projects.html", defProjectsTemplate);
+    stringToFile(sitePath / "theme" / "project_preview.html", defProjectPreviewTemplate);
+    stringToFile(sitePath / "theme" / "style.css", defCSSTemplate);
+}
+
+void createContentStructure(const char* stringPath)
+{
+    filesystem::path sitePath(stringPath); 
+
+    if(!filesystem::exists(sitePath / "content"))
+        filesystem::create_directory(sitePath / "content");
+
+    if(!filesystem::exists(sitePath / "content" / "files"))
+        filesystem::create_directory(sitePath / "content" / "files");
+
+    if(!filesystem::exists(sitePath / "content" / "posts"))
+        filesystem::create_directory(sitePath / "content" / "posts");
+
+    if(!filesystem::exists(sitePath / "content" / "posts" / "first-post.md"))
+        stringToFile(sitePath / "content" / "posts" / "first-post.md", string(samplePost));
+
+    if(!filesystem::exists(sitePath / "content" / "projects"))
+        filesystem::create_directory(sitePath / "content" / "projects");
+
+    if(!filesystem::exists(sitePath / "content" / "projects" / "first-project.md"))
+        stringToFile(sitePath / "content" / "projects" / "first-project.md", string(sampleProject));
+
+    if(!filesystem::exists(sitePath / "content" / "header.md"))
+        stringToFile(sitePath / "content" / "header.md", string(defHeaderMd));
 }

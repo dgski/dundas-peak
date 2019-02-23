@@ -5,7 +5,7 @@
 #include "markdown-to-html/MarkdownToHTML.h"
 #include "Post.h"
 #include "Project.h"
-
+#include "DefaultTheme.h"
 #define PREVIEWS_LIMIT    3
 
 using namespace std;
@@ -70,3 +70,6 @@ public:
 
     void generate();
 };
+
+void createThemeFolder(const char* stringPath);
+void createContentStructure(const char* stringPath);

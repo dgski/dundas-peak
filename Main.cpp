@@ -1,20 +1,43 @@
 #include <iostream>
 #include <chrono>
 #include <stdexcept>
+#include <string.h>
 
 #include "Site.h"
 
 using namespace std;
 
+constexpr const char* USAGE_STRING = "usage: ./dundas-peak [-g | -c] <directory>";
+
 int main(int argc, char** argv)
 {
-    if(argc != 2)
+    if(argc < 3)
     {
-        cout << "usage: ./dundas-peak directory" << endl;
+        cout << USAGE_STRING << endl;
         return -1;
     }
 
-    Site site(argv[1]);
+    if(!strcmp(argv[1], "-t"))
+    {
+        createThemeFolder(argv[2]);
+        cout << "Dundas Peak : Created Theme Folder." << endl;      
+        return 0;
+    }
+
+    if(!strcmp(argv[1], "-c"))
+    {
+        createContentStructure(argv[2]);
+        cout << "Dundas Peak : Created Content Structure." << endl;      
+        return 0;
+    }
+
+    if(strcmp(argv[1], "-g"))
+    {
+        cout << USAGE_STRING << endl;
+        return -1;
+    }
+
+    Site site(argv[2]);
     auto start = chrono::system_clock::now();
 
     try

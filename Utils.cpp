@@ -59,8 +59,11 @@ string regex_replace(string templ, const regex& expression, shared_ptr<HTMLEleme
     return regex_replace(templ, expression, s.str());
 }
 
-string fileToString(const filesystem::path& filePath)
+string fileToString(const filesystem::path& filePath, const char* def)
 {
+    if(!filesystem::exists(filePath))
+        return string(def);
+
     stringstream s;
     s << openFile<ifstream>(filePath).rdbuf();
 
