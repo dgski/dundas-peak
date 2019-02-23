@@ -31,7 +31,7 @@ site/
     content/
     public/
 ```
-This folder will contain the generated html files and structure. Serve this folder as your site.
+This **public** folder will contain the generated html files and structure. Serve it as your site.
 
 ## Content
 
