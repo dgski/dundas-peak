@@ -33,7 +33,7 @@ site/
 ```
 This **public** folder will contain the generated html files and structure. Serve it as your site.
 
-## Content
+## Adding Content
 
 ### Files
 
