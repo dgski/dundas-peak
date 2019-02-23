@@ -102,7 +102,7 @@ site/
     public/
 ```
 
-Inside this theme folder, place the following files:
+Inside this theme folder, place the following files. You can generate the default templates by running: **$ dundas-peak -t site/**
 
 |    File Name     |   Description   |     Parameters    |
 |------------------|-----------------|-------------------|
