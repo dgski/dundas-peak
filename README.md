@@ -6,9 +6,19 @@ Dundas Peak is **No-Nonsense, Low Configuration Personal Site Generator** for De
 
 Because that's all you really need!
 
-## Getting Started
+## Quick Start
 
-Dundas Peak starts with a very simple, almost flat directory structure. You must create these on your own. Here is a sample site directory with all the required files:
+There are four simple steps to get up and running with Dundas Peak:
+1. Create a folder for site: **$ mkdir site**
+2. Generate content structure: **$ dundas-peak -c site/**
+3. Add/Edit markdown files into the content folder
+4. Generate public site: **$ dundas-peak -g site/**
+
+And you should now have a **public** folder ready to serve!
+
+## Site Structure
+
+Dundas Peak starts with a very simple, almost flat directory structure. Here is a sample site directory with all the required files:
 
 ```
 site/
@@ -19,10 +29,10 @@ site/
         header.md
 ```
 
-Run the application with a single argument specifying the location of your site directory. For example:
+Run the application with the following two arguments specifying the location of your site directory. For example:
 
 ```
-$ ./dundas-peak site
+$ ./dundas-peak -g site
 ```
 
 This will read your **contents directory** and generate a **public folder** beside it:
