@@ -1,14 +1,14 @@
 # Dundas Peak Simple Static Site Generator
 Dundas Peak is **No-Nonsense, Low Configuration Personal Site Generator** for Developers. It doesn't offer much flexibility because it  creates websites with the most basic features most developers need:
 - Showcased Links (contact information, repos, resume, email, linkedIN etc...)
-- A portfolio for projects
-- A simple blog
+- A Portfolio for Projects
+- A Simple Blog
 
 Because that's all you really need!
 
 ## Getting Started
 
-Dundas Peak starts with a very simple, almost flat directory structure. Here is a sample site directory with all the required files:
+Dundas Peak starts with a very simple, almost flat directory structure. You must create these on your own. Here is a sample site directory with all the required files:
 
 ```
 site/
@@ -19,12 +19,19 @@ site/
         header.md
 ```
 
-There are two main sub-directories within your site directory:
+Run the application with a single argument specifying the location of your site directory. For example:
 
-- The content folder holds your site content. This includes your blog posts, projects, personal header, and any supporting files.
-- The theme folder holds the html templates for the various elements of content.
+```
+$ ./dundas-peak site
+```
 
-Dundas-Peak will combine your Content with Your Theme to Generate Your Site. You can customize your theme, or simply use the provided "Clean" theme.
+This will read your **contents directory** and generate a **public folder** beside it:
+```
+site/
+    content/
+    public/
+```
+This folder will contain the generated html files and structure.
 
 ## Content
 
@@ -34,7 +41,7 @@ You can place any files you reference in your posts or links here. These will co
 
 ### Posts
 
-You can create posts by simply placing markdown files into **site/posts**. Add them with a proper metadata header and these posts will be added to your blog. The post markdown file format looks as follows ("---" is necessary):
+You can create posts by simply placing markdown files into **site/content/posts**. Add them with a proper metadata header and these posts will be added to your blog. The post markdown file format looks as follows ("---" is necessary):
 
 ```
 ---
@@ -48,7 +55,7 @@ date: {YYYY/MM/DD HH:MM:SS}
 
 ### Projects
 
-You can add projects by simply placing markdown files into **site/projects**. A proper project file follows the following format ("---" is necessary):
+You can add projects by simply placing markdown files into **site/content/projects**. A proper project file follows the following format ("---" is necessary):
 
 ```
 ---
@@ -62,7 +69,7 @@ technologies: {Tech}, {Tech}, {Tech}
 
 ### Header
 
-You can alter the header of your website by editing **site/header.md**. A proper **header.md** looks like this ("---" is necessary):
+You can alter the header of your website by editing **site/content/header.md**. A proper **header.md** looks like this ("---" is necessary):
 ```
 ---
 name: {Name}
