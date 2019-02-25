@@ -169,7 +169,7 @@ string Site::generateHomePage()
 
 string Site::generatePostsPage()
 {
-    postsTemplate = fileToString(themePath / "posts.html");
+    postsTemplate = fileToString(themePath / "posts.html", defPostsTemplate);
 
     string postPreviews;
     for(const Post& p : posts)
@@ -183,7 +183,7 @@ string Site::generatePostsPage()
 
 string Site::generateProjectsPage()
 {
-    projectsTemplate = fileToString(themePath / "projects.html");
+    projectsTemplate = fileToString(themePath / "projects.html", defProjectsTemplate);
 
     string projectsPreviews;
     for(const Project& p : projects)
@@ -197,8 +197,6 @@ string Site::generateProjectsPage()
 
 void Site::generate()
 {
-    //filesystem::remove_all(publicPath);
-
     if(!filesystem::exists(publicPath))
         filesystem::create_directory(publicPath);
 
