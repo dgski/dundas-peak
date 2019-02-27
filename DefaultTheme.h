@@ -14,6 +14,7 @@ constexpr const char* defHomeTemplate = R"(
                         <h2>Projects</h2>
                         {{projects}}
                     </div>
+                    <div class="col-spacer"></div>
                     <div class="col posts">
                         <h2>Posts</h2>
                         {{posts}}
@@ -135,9 +136,15 @@ constexpr const char* defCSSTemplate = R"(
         max-width: 700px;
         margin-left: calc(50% - 350px);
         margin-top: 30px;
+        display: flex;
     }
 
     .col {
+        flex: 1;
+    }
+
+    .col-spacer {
+        width: 50px;
     }
 
     .header-links {
@@ -194,8 +201,6 @@ constexpr const char* defCSSTemplate = R"(
     }
 
     .posts {
-        margin-bottom: 30px;
-        margin-top: 30px;
         display: block;
     }
 
@@ -271,6 +276,7 @@ constexpr const char* defCSSTemplate = R"(
             width: calc(100% - 20px);
             padding-left: 10px;
             padding-right: 10px;
+            display: block;
         }
 
         .post-content {
@@ -283,6 +289,11 @@ constexpr const char* defCSSTemplate = R"(
 
         .post-title {
             margin-top: 20px;
+        }
+
+        .posts {
+            margin-bottom: 30px;
+            margin-top: 30px;
         }
     }
 
@@ -301,6 +312,7 @@ constexpr const char* defCSSTemplate = R"(
             padding-left: 1em;
             padding-right: 1em;
             font-size: 2.5em;
+            display: block;
         }
 
         .header {
@@ -384,7 +396,7 @@ tagline: A Sentance or Two About You!
 links: [Resume](#), [Email](#), [Github](https://github.com), [LinkedIn](http://linkedin.com)
 main_color: darkslateblue
 secondary_color: darkslateblue
-top_address: /
+top_address: http://127.0.0.1:8000
 ---
 )";
 

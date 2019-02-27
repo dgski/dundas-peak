@@ -187,7 +187,7 @@ string Site::generateProjectsPage()
 
     string projectsPreviews;
     for(const Project& p : projects)
-        projectsPreviews.append(p.make_preview(projectPreviewTemplate, topAddress + "/projects"));
+        projectsPreviews.append(p.make_preview(projectPreviewTemplate, topAddress));
 
     string output = regex_replace(projectsTemplate, regex("\\{\\{projects\\}\\}"), projectsPreviews);
     output = regex_replace(output, regex("\\{\\{name\\}\\}"), name);

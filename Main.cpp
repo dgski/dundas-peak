@@ -7,7 +7,7 @@
 
 using namespace std;
 
-constexpr const char* USAGE_STRING = "usage: ./dundas-peak [-g | -c] <directory>";
+constexpr const char* USAGE_STRING = "usage: ./dundas-peak [-g | -c | -t] <directory>";
 
 int main(int argc, char** argv)
 {
