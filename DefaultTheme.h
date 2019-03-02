@@ -66,9 +66,11 @@ constexpr const char*  defPostTemplate = R"(
 
 constexpr const char* defPostPreviewTemplate = R"(
     <div class="post-preview">
-        <b><a href="{{link}}">{{date}} - {{title}}</a></b>
+        <b><a href="{{link}}">{{title}}</a></b>
         <br>
         {{tagline}}
+        <br>
+        <i>{{date}}</i>
     </div>
 )";
 
@@ -180,7 +182,6 @@ constexpr const char* defCSSTemplate = R"(
     }
 
     li {
-        margin-bottom: 15px;
     }
 
     table{
