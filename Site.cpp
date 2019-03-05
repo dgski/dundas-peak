@@ -106,7 +106,7 @@ void Site::readPosts()
 
     sort(posts.begin(), posts.end(), [](const Post& a, const Post& b)
     {
-        return !(a.datetime < b.datetime);
+        return a.datetime > b.datetime;
     });
 }
 
@@ -126,8 +126,8 @@ void Site::readProjects()
     }
 
     sort(projects.begin(), projects.end(), [](const Project& a, const Project& b)
-    {
-        return !(a.datetime < b.datetime);
+    {   
+        return a.datetime > b.datetime;
     });
 }
 
