@@ -46,7 +46,6 @@ void Project::generate(const string& projectTemplate, const filesystem::path& pu
     output = regex_replace(output, regex("\\{\\{tagline\\}\\}"), tagline);
     output = regex_replace(output, regex("\\{\\{date\\}\\}"), datetime.toString(DEFAULT_DATETIME_FORMAT));
     output = regex_replace(output, regex("\\{\\{link\\}\\}"), link);
-    // TODO: MISSING LINKS
     output = regex_replace(output, regex("\\{\\{content\\}\\}"), parseResults.str());
     
     filesystem::create_directory(publicPath / filename);
