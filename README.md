@@ -2,7 +2,7 @@
 Dundas Peak is **No-Nonsense, Low Configuration Personal Site Generator** for Developers. It doesn't offer much flexibility because it  creates websites with only the basic features most developers need:
 - Showcased Links (contact information, repos, resume, email, linkedIN etc...)
 - A Portfolio for Projects
-- A Simple Blog
+- A Simple Blog with RSS support
 
 Because that's all you really need!
 
