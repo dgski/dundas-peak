@@ -66,6 +66,7 @@ public:
     void generateHeader();
     string generateHomePage();
     string generatePostsPage();
+    string generatePostsRSS();
     string generateProjectsPage();
 
     void generate();

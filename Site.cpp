@@ -181,6 +181,29 @@ string Site::generatePostsPage()
     return output;
 }
 
+string Site::generatePostsRSS()
+{
+    auto rss = make_HTMLElement("rss");
+    rss->setAttribute("version","2.0");
+
+    auto channel = make_HTMLElement("channel");
+    rss->appendChild(channel);
+    
+    auto title = make_HTMLElement("title");
+    title->appendChild(make_TextElement(name.c_str()));
+    channel->appendChild(title);
+
+    for(const Post& p : posts)
+    {
+        channel->appendChild(p.make_rssItem(topAddress));
+    }
+
+    stringstream output;
+    output << "<?xml version='1.0' encoding='UTF-8' ?>" << *rss;
+
+    return output.str();
+}
+
 string Site::generateProjectsPage()
 {
     projectsTemplate = fileToString(themePath / "projects.html", defProjectsTemplate);
@@ -228,7 +251,12 @@ void Site::generate()
     stringToFile(publicPath / "posts" / "index.html", generatePostsPage());
     stringToFile(publicPath / "projects" / "index.html", generateProjectsPage());
 
-    for(const auto p : posts)
+    if(filesystem::exists(publicPath / "posts" / "rss"))
+        filesystem::remove(publicPath / "posts" / "rss");
+    filesystem::create_directory(publicPath / "posts" / "rss");
+    stringToFile(publicPath / "posts" / "rss" / "index.xml", generatePostsRSS());
+
+    for(const auto& p : posts)
         p.generate(postTemplate, name, publicPath / "posts");
 }
 
