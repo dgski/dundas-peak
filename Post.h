@@ -22,6 +22,7 @@ struct Post
     void readContents(const filesystem::path& filePath);
     void generate(const string& postTemplate, const string& authorName, const filesystem::path& publicPath) const;
     string make_preview(const string& postPreviewTemplate, const string& topAddress) const;
+    shared_ptr<HTMLElement> make_rssItem(const string& topAddress) const;
 };
 
 string make_allPostPreviewsLink(const string& postsPath);

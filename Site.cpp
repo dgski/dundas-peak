@@ -195,22 +195,7 @@ string Site::generatePostsRSS()
 
     for(const Post& p : posts)
     {
-        auto item = make_HTMLElement("item");
-
-        auto title = make_HTMLElement("title");
-        title->appendChild(make_TextElement(p.title.c_str()));
-
-        auto link = make_HTMLElement("link");
-        link->appendChild(make_TextElement((publicPath / "posts" / p.filename / "index.html").c_str()));
-
-        auto description = make_HTMLElement("description");
-        description->appendChild(make_TextElement(p.tagline.c_str()));
-
-        item->appendChild(title);
-        item->appendChild(link);
-        item->appendChild(description);
-
-        channel->appendChild(item);
+        channel->appendChild(p.make_rssItem(topAddress));
     }
 
     stringstream output;

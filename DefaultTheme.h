@@ -30,11 +30,14 @@ constexpr const char* defPostsTemplate = R"(
             <head>
                 <title>Posts By {{name}}</title>
                 <link rel="stylesheet" type="text/css" href="/style.css">
+                <link rel="alternate" type="application/rss+xml" title="Posts RSS Feed" href="posts/rss/">
             </head>
             <body>
                 <div class="content">
                     <div class="col posts">
                         <h2>All Posts By <a href="/">{{name}}</a></h2>
+                        <a href="rss/index.xml">RSS</a>
+                        <br>
                         <br>
                         {{posts}}
                     </div>

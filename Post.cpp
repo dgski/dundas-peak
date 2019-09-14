@@ -76,3 +76,23 @@ string make_allPostPreviewsLink(const string& postsPath)
 
     return ss.str();
 }
+
+shared_ptr<HTMLElement> Post::make_rssItem(const string& topAddress) const
+{
+    auto item = make_HTMLElement("item");
+
+    auto titleElem = make_HTMLElement("title");
+    titleElem->appendChild(make_TextElement(title.c_str()));
+
+    auto link = make_HTMLElement("link");
+    link->appendChild(make_TextElement((topAddress + "/posts/" +  filename + "/index.html").c_str()));
+
+    auto description = make_HTMLElement("description");
+    description->appendChild(make_TextElement(tagline.c_str()));
+
+    item->appendChild(titleElem);
+    item->appendChild(link);
+    item->appendChild(description);
+
+    return item;
+}
